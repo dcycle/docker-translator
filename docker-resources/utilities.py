@@ -1,7 +1,6 @@
-"""Utilities."""
+"""General utilities"""
 
 import os
-import importlib.machinery
 
 def env(var, default=None):
     """Get environment variable; throw error if not set if default is None."""
@@ -13,16 +12,21 @@ def env(var, default=None):
         raise EnvironmentError(f"Environment variable {var} not set, please see README.md")
     return candidate
 
-def readFile(filename):
-    f = open(filename, "r")
-    return f.read()
-
-def import_module(module):
-    loader = importlib.machinery.SourceFileLoader('a_b', module)
-    loader.load_module()
-    return module
+def read_file(filename):
+    """Read a file's contents"""
+    with open(filename, encoding="utf-8") as f:
+        f.read()
 
 def pretty_print(json_obj):
     """Pretty print JSON."""
+    # pylint: disable=C0415
     import json
-    print(json.dumps(json_obj, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
+    print(
+        json.dumps(
+            json_obj,
+            sort_keys=True,
+            ensure_ascii=False,
+            indent=4,
+            separators=(',', ': '),
+        ),
+    )

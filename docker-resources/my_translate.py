@@ -1,8 +1,15 @@
 """Adapted from the Microsoft Translator Text API documentation"""
 
+# pylint: disable=E0401
+import my_simulated
+# pylint: disable=E0401
+import my_microsoft
+
+# pylint: disable=W0613
+# pylint: disable=R0917
+# pylint: disable=R0913
 def translate(provider, text, from_lg, to, preprocessors, postprocessors):
-    import my_simulated
-    import my_microsoft
+    """Translate some text"""
 
     process(text, preprocessors)
 
@@ -16,5 +23,7 @@ def translate(provider, text, from_lg, to, preprocessors, postprocessors):
 
     return ret
 
+# pylint: disable=W0613
 def process(text, processors):
+    """Process text using a processor"""
     return text

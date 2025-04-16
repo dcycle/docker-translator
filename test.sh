@@ -1,7 +1,13 @@
 #!/bin/bash
 # Tests
 set -e
-# docker run --rm -v $(pwd)/docker-resources:/app/code dcycle/python-lint:2 ./code
+
+# See https://github.com/dcycle/docker-python-lint
+echo ""
+echo "To ignore a line, you can add this before the line"
+echo "# pylint: disable=E0401"
+echo ""
+docker run --rm -v $(pwd)/docker-resources:/app/code dcycle/python-lint:2 ./code
 docker pull python:alpine
 docker build -t local-translate-api-image .
 
