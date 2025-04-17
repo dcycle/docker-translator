@@ -15,30 +15,14 @@ Start by configuring your variables:
 
 Then run a basic test, confirms everything works, you can run:
 
-    ./scripts/test-ms.sh
-
-
-
-
-    docker run --rm \
-      -e ENDPOINT="$MS_ENDPOINT" \
-      -e KEY="$MS_KEY" \
-      -e LOC="$MS_LOC" \
-      -v $(pwd)/example01:/data dcycle/ms-translate:1 \
-      fr /data/example-en.md /data/example-fr.md
+    ./scripts/preflight.sh
 
 Adding the configuration to your profile file
 -----
 
 If you don't want to type in your configuration every time you use this, you can add your configuration to your `.zshenv` or `.bash_profile` files so they will be available every time you open a session.
 
-
-
-
-
-See [this project on the Docker Hub](https://hub.docker.com/r/dcycle/ms-translate/).
-
 More resources
 -----
 
-https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp
+* [Quickstart: Azure AI Translator REST APIs, 04/14/2025, Microsoft](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp)
