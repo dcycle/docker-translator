@@ -1,8 +1,6 @@
 """Adapted from the Microsoft Translator Text API documentation"""
 
 # pylint: disable=E0401
-import re
-# pylint: disable=E0401
 import my_simulated
 # pylint: disable=E0401
 import my_microsoft
