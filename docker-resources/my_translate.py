@@ -45,7 +45,15 @@ def wrap_in_span(text, pattern):
     compiled_pattern = re.compile(pattern, re.MULTILINE)
 
     # Replace all matches in the text with wrapped <span> tags
-    wrapped_text = compiled_pattern.sub(r'<span translate="no">\g<0></span>', text)
+    # Function to wrap match inside <span> and preserve leading spaces
+    def wrap_with_spaces(match):
+        matched_text = match.group(0)
+        # Get the number of leading spaces
+        leading_spaces = len(matched_text) - len(matched_text.lstrip())
+        return ' ' * leading_spaces + f'<span translate="no">{matched_text.strip()}</span>'
+
+    # Replace all matches in the text with wrapped <span> tags
+    wrapped_text = compiled_pattern.sub(wrap_with_spaces, text)
 
     return wrapped_text
 
