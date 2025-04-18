@@ -16,7 +16,7 @@ def replace(text, translate_me = True):
         if text.startswith('</span>'):
             return replace(text, True)
         first = text[0]
-    return first + replace(text[1:], translate)
+    return first + replace(text[1:], translate_me)
 
 # pylint: disable=W0613
 def translate(text, from_lg, to):
