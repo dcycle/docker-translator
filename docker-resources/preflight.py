@@ -68,17 +68,6 @@ preprocessors = []
 postprocessors = []
 if utilities.env('MS_SIMULATE', False):
     PROVIDER = 'simulate'
-    postprocessors = [
-      {
-        "name": "replace-letters",
-        "args": {
-          "from": [
-            "e", "i", "o", "u"
-          ],
-          "to": "a"
-        }
-      }
-    ]
 else:
     PROVIDER = 'microsoft'
 
@@ -157,4 +146,29 @@ utilities.pretty_print(my_translate.translate(
   ['fr'],
   preprocessors,
   postprocessors,
+))
+
+utilities.pretty_print(my_translate.translate(
+  PROVIDER,
+  """
+  this is a test with pre- and post-processors
+  """,
+  'en',
+  ['fr'],
+  [
+    {
+      'name' : 'add-to-start',
+      'args' : {
+        'add': 'THIS WAS ADDED BY THE PREPROCESSOR ',
+      },
+    },
+  ],
+  [
+    {
+      'name' : 'add-to-start',
+      'args' : {
+        'add': 'THIS WAS ADDED BY THE POSTPROCESSOR ',
+      },
+    }
+  ],
 ))
