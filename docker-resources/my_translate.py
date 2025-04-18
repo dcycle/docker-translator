@@ -1,6 +1,8 @@
 """Adapted from the Microsoft Translator Text API documentation"""
 
 # pylint: disable=E0401
+import re
+# pylint: disable=E0401
 import my_simulated
 # pylint: disable=E0401
 import my_microsoft
@@ -11,7 +13,7 @@ import my_microsoft
 def translate(provider, text, from_lg, to, preprocessors, postprocessors):
     """Translate some text"""
 
-    process(text, preprocessors)
+    apply_preprocessors(text, preprocessors)
 
     match provider:
         case 'microsoft':
@@ -21,9 +23,61 @@ def translate(provider, text, from_lg, to, preprocessors, postprocessors):
         case _:
             raise EnvironmentError('provider must be set in my_transate.translate()')
 
+    apply_postprocessors(text, postprocessors)
     return ret
 
 # pylint: disable=W0613
-def process(text, processors):
-    """Process text using a processor"""
+def apply_frontmatter_no_translate(text, frontmatter_fields):
+    """Wrap specified frontmatter field names with <span translate="no">."""
+    for field in frontmatter_fields:
+        # Define the regex pattern to match the dynamic field_name followed by a colon
+        pattern = rf'(\s*)({field}):'
+
+        # Replace the field_name with the new format, keeping the value intact
+        text = re.sub(pattern, r'\1<span translate="no">\2:</span>', text)
+
+    return text
+
+# pylint: disable=W0613
+def wrap_in_span(text, pattern):
+    """Function to wrap the matched text in <span translate="no"></span>"""
+    # Compile the regex pattern
+    compiled_pattern = re.compile(pattern, re.MULTILINE)
+
+    # Replace all matches in the text with wrapped <span> tags
+    wrapped_text = compiled_pattern.sub(r'<span translate="no">\g<0></span>', text)
+
+    return wrapped_text
+
+# pylint: disable=W0613
+def apply_preprocessors(text, preprocessors):
+    """Apply preprocessing steps to the text."""
+    for processor in preprocessors:
+        name = processor['name']
+        args = processor['args']
+
+        if name == 'do-not-translate-regex':
+            regex = args.get('regex')
+
+            if regex:
+                # Apply the regex wrap function
+                text = wrap_in_span(text, regex)
+
+        if name == 'do-not-translate-frontmatter':
+            text = apply_frontmatter_no_translate(text, args['frontmatter'])
+
+    print("--- after preprocess ---", text)
+    return text
+
+# pylint: disable=W0613
+def apply_postprocessors(text, postprocessors):
+    """Apply postprocessing steps to the text."""
+    for processor in postprocessors:
+        name = processor['name']
+        # args = processor['args']
+
+        if name == 'remove-span-translate-no':
+            # Remove <span translate="no">...</span> tags
+            text = re.sub(r'<span translate="no">(.*?)</span>', r'\1', text)
+
     return text
