@@ -72,103 +72,236 @@ else:
     PROVIDER = 'microsoft'
 
 heading('Call to translator')
-utilities.pretty_print(my_translate.translate(
-  PROVIDER,
-  'Three can keep a secret, if two of them are dead.',
-  'en',
-  ['es', 'fr'],
-  preprocessors,
-  postprocessors,
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': 'Three can keep a secret, if two of them are dead.',
+    'from_lg': 'en',
+    'to': ['es', 'fr'],
+    'preprocessors': preprocessors,
+    'postprocessors': postprocessors
+  }
 ))
 
-utilities.pretty_print(my_translate.translate(
-  PROVIDER,
-  """
-  This is an example of some text which contains a code block
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    This is an example of some text which contains a code block
 
-     $household->dogs();
-  """,
-  'en',
-  ['fr'],
-  preprocessors,
-  postprocessors,
+      $household->dogs();
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    'preprocessors': preprocessors,
+    'postprocessors': postprocessors
+  }
 ))
 
-utilities.pretty_print(my_translate.translate(
-  PROVIDER,
-  """
-  This is an example of some text which contains a code block
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    This is an example of some text which contains a code block
 
-     <span translate="no">$household->dogs()</span>;
-  """,
-  'en',
-  ['fr'],
-  preprocessors,
-  postprocessors,
+      <span translate="no">$household->dogs()</span>;
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    'preprocessors': preprocessors,
+    'postprocessors': postprocessors
+  }
 ))
 
-utilities.pretty_print(my_translate.translate(
-  PROVIDER,
-  """
-  ----
-  title: "My trip on the Nile"
-  ----
-  It was during a hot day on the boat "The Queen of Egypt" that I wrote this source code:
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    ----
+    title: "My trip on the Nile"
+    ----
+    It was during a hot day on the boat "The Queen of Egypt" that I wrote this source code:
 
-      $dogs = $household->dogs();
-      // Display number of dogs
-      echo "We have " . $dogs->count() . "dogs";
-  """,
-  'en',
-  ['fr'],
-  preprocessors,
-  postprocessors,
+        $dogs = $household->dogs();
+        // Display number of dogs
+        echo "We have " . $dogs->count() . "dogs";
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    'preprocessors': preprocessors,
+    'postprocessors': postprocessors
+  }
 ))
 
 # https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/how-to/prevent-translation
 # Only works if the textType is set to html, which it is in the file
 # my_microsoft.py
-utilities.pretty_print(my_translate.translate(
-  PROVIDER,
-  """
-  ----
-  <span translate="no">title</span>: "My trip on the Nile"
-  ----
-  It was during a hot day on the boat
-  "<span translate="no">The Queen of Egypt</span>" that I wrote this source
-  code:
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    ----
+    <span translate="no">title</span>: "My trip on the Nile"
+    ----
+    It was during a hot day on the boat
+    "<span translate="no">The Queen of Egypt</span>" that I wrote this source
+    code:
 
-      <span translate="no">$dogs = $household->dogs();</span>
-      // Display number of dogs
-      <span translate="no">echo "We have " . $dogs->count() . "dogs";</span>
-  """,
-  'en',
-  ['fr'],
-  preprocessors,
-  postprocessors,
+        <span translate="no">$dogs = $household->dogs();</span>
+        // Display number of dogs
+        <span translate="no">echo "We have " . $dogs->count() . "dogs";</span>
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    'preprocessors': preprocessors,
+    'postprocessors': postprocessors
+  }
 ))
 
-utilities.pretty_print(my_translate.translate(
-  PROVIDER,
-  """
-  this is a test with pre- and post-processors
-  """,
-  'en',
-  ['fr'],
-  [
-    {
-      'name' : 'add-to-start',
-      'args' : {
-        'add': 'THIS WAS ADDED BY THE PREPROCESSOR ',
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    this is a test with pre- and post-processors
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    'preprocessors': [
+      {
+        'name' : 'add-to-start',
+        'args' : {
+          'add': 'THIS WAS ADDED BY THE PREPROCESSOR ',
+        },
       },
-    },
-  ],
-  [
-    {
-      'name' : 'add-to-start',
-      'args' : {
-        'add': 'THIS WAS ADDED BY THE POSTPROCESSOR ',
+    ],
+    'postprocessors': [
+      {
+        'name' : 'add-to-start',
+        'args' : {
+          'add': 'THIS WAS ADDED BY THE POSTPROCESSOR ',
+        },
+      }
+    ]
+  }
+))
+
+# author key in frontmatter shouldn't be translated
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    ---
+    title: "My trip on the Nile"
+    author: "abcd"
+    ---
+    It was during a hot day on the boat "The Queen of Egypt" that I wrote this source code:
+
+        $dogs = $household->dogs();
+        // Display number of dogs
+        echo "We have " . $dogs->count() . "dogs";
+
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    # pylint: disable=E0401
+    'preprocessors': [
+      {
+        # pylint: disable=E0401
+        'name' : 'do-not-translate-frontmatter',
+        # pylint: disable=E0401
+        'args' : {
+          'frontmatter': [
+            'author',
+          ]
+        },
+      }
+    ],
+    'postprocessors': [
+      {
+        'name' : 'remove-span-translate-no',
+        'args' : {},
+      }
+    ]
+  }
+))
+
+# title, description and regex matched text shouldn't be translated.
+# Ensure regex matches your text other wise we will end up in a error
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    ---
+    title: "My trip on the Nile"
+    description: "It was during a hot day on the boat that I wrote this source code"
+    ---
+    It was during a hot day on the boat "The Queen of Egypt" that I wrote this source code:
+
+        $dogs = $household->dogs();
+        // Display number of dogs
+        echo "We have " . $dogs->count() . "dogs";
+
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    # pylint: disable=E0401
+    'preprocessors': [
+      {
+        # pylint: disable=E0401
+        'name' : 'do-not-translate-frontmatter',
+        # pylint: disable=E0401
+        'args' : {
+          'frontmatter': [
+            'title',
+            'description'
+          ]
+        },
       },
-    }
-  ],
+      {
+        # pylint: disable=E0401
+        'name' : 'do-not-translate-regex',
+        # pylint: disable=E0401
+        'args' : {
+          # pylint: disable=E0401
+          'regex': r'^ {8}(?!\s*//).*',
+          'description': 'Code line which begins with a comment',
+        },
+      },
+    ],
+    'postprocessors': [
+      {
+        'name' : 'remove-span-translate-no',
+        'args' : {},
+      }
+    ]
+  }
+))
+
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    ---
+    title: "My trip on the Nile"
+    ---
+    It was during a hot day on the boat "The Queen of Egypt" that I wrote this source code:
+
+        $dogs = $household->dogs();
+        // Display number of dogs
+        echo "We have " . $dogs->count() . "dogs";
+
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    # pylint: disable=E0401
+    'preprocessors': [
+      {
+        # pylint: disable=E0401
+        'name' : 'do-not-translate-regex',
+        # pylint: disable=E0401
+        'args' : {
+          # pylint: disable=E0401
+          'regex': r'^ {8}(?!\s*//).*',
+          'description': 'Code line which begins with a comment',
+        },
+      },
+    ],
+    'postprocessors': [
+      {
+        'name' : 'remove-span-translate-no',
+        'args' : {},
+      }
+    ]
+  }
 ))
