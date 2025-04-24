@@ -14,10 +14,15 @@ import processor_do_not_translate_regex
 import processor_remove_span_translate_no
 
 # pylint: disable=W0613
-# pylint: disable=R0917
-# pylint: disable=R0913
-def translate(provider, text, from_lg, to, preprocessors, postprocessors):
+def translate(data):
     """Translate some text"""
+
+    provider = data['provider']
+    text = data['text']
+    from_lg = data['from_lg']
+    to = data['to']
+    preprocessors = data['preprocessors']
+    postprocessors = data['postprocessors']
 
     preprocessed_text = process(text, preprocessors)
 
