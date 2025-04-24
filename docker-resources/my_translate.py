@@ -6,12 +6,23 @@ import my_simulated
 import my_microsoft
 # pylint: disable=E0401
 import processor_add_to_start
+# pylint: disable=E0401
+import processor_do_not_translate_frontmatter
+# pylint: disable=E0401
+import processor_do_not_translate_regex
+# pylint: disable=E0401
+import processor_remove_span_translate_no
 
 # pylint: disable=W0613
-# pylint: disable=R0917
-# pylint: disable=R0913
-def translate(provider, text, from_lg, to, preprocessors, postprocessors):
+def translate(data):
     """Translate some text"""
+
+    provider = data['provider']
+    text = data['text']
+    from_lg = data['from_lg']
+    to = data['to']
+    preprocessors = data['preprocessors']
+    postprocessors = data['postprocessors']
 
     preprocessed_text = process(text, preprocessors)
 
@@ -43,6 +54,12 @@ def processor(pr):
     match pr['name']:
         case 'add-to-start':
             return processor_add_to_start
+        case 'do-not-translate-frontmatter':
+            return processor_do_not_translate_frontmatter
+        case 'do-not-translate-regex':
+            return processor_do_not_translate_regex
+        case 'remove-span-translate-no':
+            return processor_remove_span_translate_no
         case _:
             raise EnvironmentError('processor must be set in my_translate.' +
             'processor() got ' + pr['name'])
