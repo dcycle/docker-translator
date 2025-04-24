@@ -12,6 +12,7 @@ def replace(text, translate_me = True):
         first = first.replace('i', 'a')
         first = first.replace('o', 'a')
         first = first.replace('u', 'a')
+        first = first.replace('"', '»')
     else:
         if text.startswith('</span>'):
             return replace(text, True)
