@@ -307,16 +307,13 @@ utilities.pretty_print(my_translate.translate({
     title: "This should be translated"
     something:
     - whatever: This should be translated
-      abc: This should not be translated
     something_else: "This should be translated"
-    xyz: This should not be translated
     this_is_the_language_key: en
     ---
-    It was during a hot day on the boat "The Queen of Egypt" that I wrote this source code:
+    This should be translated
 
-        $dogs = $household->dogs();
-        // Display number of dogs
-        echo "We have " . $dogs->count() . "dogs";
+        This should not be translated because it is preceded by four spaces and is code
+        // This should be translated because it is a comment
 
     """,
     'from_lg': 'en',
