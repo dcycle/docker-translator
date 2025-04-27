@@ -1,17 +1,28 @@
 """All translate markdown code"""
 
+# pylint: disable=E0401
 import argparse
+# pylint: disable=E0401
 import hashlib
+# pylint: disable=E0401
 from datetime import datetime
+# pylint: disable=E0401
 import os
-import sys
+# pylint: disable=E0401
 import my_translate
+# pylint: disable=E0401
 import utilities
 
 def generate_hash(content):
+    """
+    add readme
+    """
     return hashlib.md5(content.encode('utf-8')).hexdigest()
 
-def replace_message_placeholders(message, args, source_hash):
+def replace_message_placeholders(message, args):
+    """
+    add readme
+    """
     replacements = {
         '@Provider': args.provider,
         '@source': args.source_lang,
@@ -23,6 +34,9 @@ def replace_message_placeholders(message, args, source_hash):
     return message
 
 def check_existing_translation(dest_file, source_hash, args):
+    """
+    add readme
+    """
     if not os.path.exists(dest_file):
         return False
 
@@ -30,7 +44,7 @@ def check_existing_translation(dest_file, source_hash, args):
         content = f.read()
         frontmatter = utilities.extract_frontmatter(content)
 
-        if (frontmatter.get(args.translate_key, {}).get('hash') == source_hash):
+        if frontmatter.get(args.translate_key, {}).get('hash') == source_hash:
             print(f"Did not translate because source hash of {args.source}, {source_hash}, "
                   f"is the same as the source hash key in the existing destination file")
             return True
@@ -39,24 +53,25 @@ def check_existing_translation(dest_file, source_hash, args):
 def extract_and_write_translation(result, dest_file, args, source_hash):
     """Extract translation and write to file with updated frontmatter"""
     translated_text = result['translations'][0]['text']
-    
+
     # Prepare translation metadata
     translation_metadata = {
         'hash': source_hash,
         'message': replace_message_placeholders(
-            args.translate_message, args, source_hash)
+            args.translate_message, args
+        )
     }
-    
+
     # Get existing frontmatter (if any)
     existing_frontmatter = utilities.extract_frontmatter(translated_text)
     if existing_frontmatter is None:
         existing_frontmatter = {}
-    
+
     # Preserve do-not-translate fields
     for key in args.do_not_translate_frontmatter:
         if key in existing_frontmatter:
             translation_metadata[key] = existing_frontmatter[key]
-    
+
     # Prepare all frontmatter updates
     updates = {
         args.langkey: args.dest_lang,  # Language key
@@ -65,7 +80,7 @@ def extract_and_write_translation(result, dest_file, args, source_hash):
 
     # Update the content
     final_content = utilities.update_frontmatter(translated_text, updates)
-    
+
     # Write the file
     with open(dest_file, 'w', encoding='utf-8') as out_f:
         out_f.write(final_content)
@@ -73,6 +88,9 @@ def extract_and_write_translation(result, dest_file, args, source_hash):
     print(f"Translation saved to {dest_file}")
 
 def main():
+    """
+    faklfa;lkdfj
+    """
     parser = argparse.ArgumentParser(description='Translate markdown content.')
     parser.add_argument('--source', required=True)
     parser.add_argument('--source-lang', required=True)
@@ -82,7 +100,10 @@ def main():
     parser.add_argument('--provider', default='microsoft')
     parser.add_argument('--langkey', default='lang')
     parser.add_argument('--translate-key', default='translation')
-    parser.add_argument('--translate-message', default='Translated by @Provider from @source using @repo on @Date')
+    parser.add_argument(
+      '--translate-message',
+      default='Translated by @Provider from @source using @repo on @Date'
+    )
     parser.add_argument('--do-not-translate-frontmatter', nargs='*', default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
     parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
@@ -142,21 +163,6 @@ def main():
     dest_file = f"{args.destination_folder}.{args.dest_lang}.md"
     if check_existing_translation(dest_file, source_hash, args):
         return
-    
-    # Prepare translation metadata
-    translation_metadata = {
-        'hash': source_hash,
-        'message': replace_message_placeholders(
-            args.translate_message, args, source_hash)
-    }
-
-    # Add to translation options
-    translation_options = {
-        # ... existing options ...
-        'translation_metadata': translation_metadata,
-        'lang_key': args.langkey,
-        'dest_lang': args.dest_lang
-    }
 
     utilities.heading('Call to translator')
     result = my_translate.translate({
@@ -173,10 +179,6 @@ def main():
     })
 
     utilities.pretty_print(result)
-
-    # Example destination folder and language
-    destination_folder = "output/translated_file"
-    dest_lang = "fr"  # the target language, e.g., 'fr' for French
 
     # Extract and write the translated content to the file
     extract_and_write_translation(result, dest_file, args, source_hash)

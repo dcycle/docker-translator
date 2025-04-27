@@ -70,6 +70,9 @@ mkdir -p $(pwd)/do-not-commit
 docker build -t local-translate-api-image .
 
 docker run \
+  -e MS_ENDPOINT="$MS_ENDPOINT" \
+  -e MS_LOC="$MS_LOC" \
+  -e MS_KEY="$MS_KEY" \
   -v $(pwd)/example01:/app/example01 \
   -v $(pwd)/docker-resources:/app \
   -v $(pwd)/do-not-commit:/app/do-not-commit \
@@ -83,4 +86,3 @@ docker run \
   --translate-key "$TRANSLATE_KEY" \
   --translate-message "$TRANSLATE_MESSAGE" \
   $(for key in "${DO_NOT_TRANSLATE_KEYS[@]}"; do echo "--do-not-translate-frontmatter $key"; done)
-

@@ -9,6 +9,8 @@ import processor_add_to_start
 # pylint: disable=E0401
 import processor_do_not_translate_frontmatter
 # pylint: disable=E0401
+import processor_do_not_translate_frontmatter_doublequote
+# pylint: disable=E0401
 import processor_do_not_translate_regex
 # pylint: disable=E0401
 import processor_remove_span_translate_no
@@ -56,6 +58,8 @@ def processor(pr):
             return processor_add_to_start
         case 'do-not-translate-frontmatter':
             return processor_do_not_translate_frontmatter
+        case 'do-not-translate-frontmatter-double-quote':
+            return processor_do_not_translate_frontmatter_doublequote
         case 'do-not-translate-regex':
             return processor_do_not_translate_regex
         case 'remove-span-translate-no':

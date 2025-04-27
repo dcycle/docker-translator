@@ -1,9 +1,13 @@
 """General utilities"""
 
-import re
-import yaml
-from yaml import SafeLoader
+# pylint: disable=E0401
 import os
+# pylint: disable=E0401
+import re
+# pylint: disable=E0401
+import yaml
+# pylint: disable=E0401
+from yaml import SafeLoader
 
 def env(var, default=None):
     """Get environment variable; throw error if not set if default is None."""
@@ -42,10 +46,6 @@ def heading(text):
     print('####')
     print('')
 
-def pretty_print(data):
-    """Print data in a readable format"""
-    print(yaml.dump(data, allow_unicode=True, default_flow_style=False))
-
 def extract_frontmatter(content):
     """Extract YAML frontmatter from markdown content"""
     frontmatter = {}
@@ -69,13 +69,13 @@ def update_frontmatter(content, updates):
         # No frontmatter exists, create it
         new_frontmatter = yaml.dump(updates, allow_unicode=True, default_flow_style=False)
         return f"---\n{new_frontmatter}---\n{content}"
-    else:
-        # Update existing frontmatter
-        existing = match.group(1)
-        try:
-            current = yaml.load(existing[4:-4], Loader=SafeLoader) or {}
-            current.update(updates)
-            new_frontmatter = yaml.dump(current, allow_unicode=True, default_flow_style=False)
-            return content.replace(existing, f"---\n{new_frontmatter}---\n")
-        except yaml.YAMLError:
-            return content
+
+    # Update existing frontmatter
+    existing = match.group(1)
+    try:
+        current = yaml.load(existing[4:-4], Loader=SafeLoader) or {}
+        current.update(updates)
+        new_frontmatter = yaml.dump(current, allow_unicode=True, default_flow_style=False)
+        return content.replace(existing, f"---\n{new_frontmatter}---\n")
+    except yaml.YAMLError:
+        return content
