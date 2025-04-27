@@ -15,13 +15,37 @@ import utilities
 
 def generate_hash(content):
     """
-    add readme
+    Generate an MD5 hash from a given string.
+
+    This function takes a text string (such as the contents of a README file),
+    encodes it as UTF-8, and returns its MD5 hash as a hexadecimal string.
+
+    Args:
+        content (str): The input string to hash.
+
+    Returns:
+        str: The hexadecimal MD5 hash of the input.
     """
     return hashlib.md5(content.encode('utf-8')).hexdigest()
 
 def replace_message_placeholders(message, args):
     """
-    add readme
+    Replace placeholders in a message template with actual values.
+
+    This function takes a message template string and an argument object (typically
+    parsed via argparse), and substitutes predefined placeholders in the message with:
+      - The translation provider (`@Provider`)
+      - The source language code (`@source`)
+      - The repository URL (`@repo`)
+      - The current date in ISO format (`@Date`, e.g., 2025-04-27)
+
+    Args:
+        message (str): The message template containing placeholders.
+        args (argparse.Namespace): The parsed arguments containing at least
+                                   `provider` and `source_lang` attributes.
+
+    Returns:
+        str: The message with all placeholders replaced by their corresponding values.
     """
     replacements = {
         '@Provider': args.provider,
@@ -35,7 +59,21 @@ def replace_message_placeholders(message, args):
 
 def check_existing_translation(dest_file, source_hash, args):
     """
-    add readme
+    Check if the destination file already contains a translation of the current source content.
+
+    This function reads the frontmatter of an existing translated markdown file and compares
+    its stored hash against the provided `source_hash`. If the hashes match, it means the content
+    has not changed since the last translation, so re-translation is skipped.
+
+    Args:
+        dest_file (str): Path to the destination markdown file.
+        source_hash (str): MD5 hash of the current source content.
+        args (argparse.Namespace): Parsed arguments including `source`, and `translate_key` 
+                                   used to locate the hash in the destination's frontmatter.
+
+    Returns:
+        bool: True if the existing translation matches the source content (no need to re-translate),
+              False otherwise.
     """
     if not os.path.exists(dest_file):
         return False
@@ -89,13 +127,30 @@ def extract_and_write_translation(result, dest_file, args, source_hash):
 
 def main():
     """
-    faklfa;lkdfj
+    Main function to translate a markdown file from one language to another.
+
+    This function reads a source markdown file, checks whether a translation already exists,
+    applies various preprocessors and postprocessors based on the input arguments, and
+    invokes a translation service to perform the translation. The translated content is
+    then saved to the destination file. 
+
+    The function supports the following features based on input arguments:
+    - Skipping translation of specific frontmatter keys.
+    - Excluding lines matching a regex pattern from translation.
+    - Removing <span translate='no'> tags from the content.
+    
+    Args:
+        None: The arguments are parsed from the command line via argparse.
+
+    Returns:
+        None: This function doesn't return anything, but it performs file operations
+              and prints out translation results to the console.
     """
     parser = argparse.ArgumentParser(description='Translate markdown content.')
     parser.add_argument('--source', required=True)
     parser.add_argument('--source-lang', required=True)
     # Add the destination-folder argument
-    parser.add_argument('--destination-folder', default=None)
+    parser.add_argument('--destination', default=None)
     parser.add_argument('--dest-lang', required=True)
     parser.add_argument('--provider', default='microsoft')
     parser.add_argument('--langkey', default='lang')
@@ -109,10 +164,6 @@ def main():
     parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
 
     args = parser.parse_args()
-
-    # Set the destination-folder to the value of --source if not provided
-    if args.destination_folder is None:
-        args.destination_folder = args.source
 
     # Simulate reading markdown content (you'd actually load the file)
     with open(args.source, 'r', encoding='utf-8') as f:
@@ -148,19 +199,10 @@ def main():
             'args': {},
         })
 
-    # Output the resulting preprocessors and postprocessors for debugging
-    print("Preprocessors:")
-    for pre in preprocessors:
-        print(pre)
-
-    print("\nPostprocessors:")
-    for post in postprocessors:
-        print(post)
-
     source_hash = generate_hash(markdown_content)
 
     # Check existing translation
-    dest_file = f"{args.destination_folder}.{args.dest_lang}.md"
+    dest_file = args.destination
     if check_existing_translation(dest_file, source_hash, args):
         return
 

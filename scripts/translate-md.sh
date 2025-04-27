@@ -9,25 +9,29 @@ PROVIDER="microsoft"
 TRANSLATE_KEY="translation"
 TRANSLATE_MESSAGE="Translated by @Provider from @source using @repo on @Date"
 DO_NOT_TRANSLATE_KEYS=()
+REGEX_PROC="False"
+REMOVE_SPAN="False"
 
-# Helper to show usage
+# Usage function
 usage() {
   echo "Usage: $0 --source <file> --source-lang <lang> --dest-lang <lang> [options]"
   echo
   echo "Options:"
   echo "  --source                      Source markdown file (required)"
-  echo "  --langkey                    Frontmatter language key (default: lang)"
-  echo "  --source-lang                Source language (required)"
-  echo "  --dest-lang                  Destination language (required)"
-  echo "  --destination-folder         Output folder (default: same as source)"
-  echo "  --provider                   Translation provider (default: microsoft)"
-  echo "  --translate-key              Frontmatter key for translation info (default: translation)"
-  echo "  --translate-message          Message template (default: 'Translated by @Provider from @source using @repo on @Date')"
-  echo "  --do-not-translate-frontmatter <key>  Frontmatter key to exclude from translation (can be repeated)"
+  echo "  --langkey                     Frontmatter language key (default: lang)"
+  echo "  --source-lang                 Source language (required)"
+  echo "  --dest-lang                   Destination language (required)"
+  echo "  --destination-folder          Output folder (default: same as source)"
+  echo "  --provider                    Translation provider (default: microsoft)"
+  echo "  --translate-key               Frontmatter key for translation info"
+  echo "  --translate-message           Translation message template"
+  echo "  --do-not-translate-frontmatter <key>  Key to exclude (can repeat)"
+  echo "  --do-not-translate-regex      Enable regex exclusion"
+  echo "  --remove-span-translate-no    Remove <span translate='no'>"
   exit 1
 }
 
-# Parse arguments
+# Parse args
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --source) SOURCE="$2"; shift 2 ;;
@@ -41,48 +45,54 @@ while [[ $# -gt 0 ]]; do
     --do-not-translate-frontmatter)
       DO_NOT_TRANSLATE_KEYS+=("$2")
       shift 2 ;;
-    *)
-      echo "Unknown option: $1"
-      usage ;;
+    --do-not-translate-regex) REGEX_PROC="True"; shift ;;
+    --remove-span-translate-no) REMOVE_SPAN="True"; shift ;;
+    *) echo "Unknown option: $1"; usage ;;
   esac
 done
 
-# Check required arguments
+# Required args check
 [[ -z "$SOURCE" || -z "$SOURCE_LANG" || -z "$DEST_LANG" ]] && usage
 
-# Determine destination folder
+# Set destination folder
 if [[ -z "$DEST_FOLDER" ]]; then
   DEST_FOLDER=$(dirname "$SOURCE")
 fi
 
-# Create destination folder if it doesn't exist
 mkdir -p "$DEST_FOLDER"
 
-# Destination file
+# Prepare output path
 BASENAME=$(basename "$SOURCE" .md)
 DEST_FILE="$DEST_FOLDER/${BASENAME}.${DEST_LANG}.md"
 
+# Pull and build Docker
 docker pull python:alpine
-# docker build -t local-translate-api-image .
+docker build -t local-translate-api-image .
 
 mkdir -p $(pwd)/do-not-commit
 
-docker build -t local-translate-api-image .
+# Prepare optional flags
+[[ "$REGEX_PROC" == "True" ]] && DO_REGEX_FLAG="--do-not-translate-regex"
+[[ "$REMOVE_SPAN" == "True" ]] && REMOVE_SPAN_FLAG="--remove-span-translate-no"
 
+# Run Docker translation
 docker run \
   -e MS_ENDPOINT="$MS_ENDPOINT" \
   -e MS_LOC="$MS_LOC" \
   -e MS_KEY="$MS_KEY" \
-  -v $(pwd)/example01:/app/example01 \
-  -v $(pwd)/docker-resources:/app \
-  -v $(pwd)/do-not-commit:/app/do-not-commit \
+  -v "$(pwd)/example01:/app/example01" \
+  -v "$(pwd)/docker-resources:/app" \
+  -v "$(pwd)/do-not-commit:/app/do-not-commit" \
   local-translate-api-image \
   /app/translate_markdown.py \
   --source "/app/$SOURCE" \
   --source-lang "$SOURCE_LANG" \
+  --destination "/app/$DEST_FILE" \
   --dest-lang "$DEST_LANG" \
   --provider "$PROVIDER" \
   --langkey "$LANGKEY" \
   --translate-key "$TRANSLATE_KEY" \
   --translate-message "$TRANSLATE_MESSAGE" \
-  $(for key in "${DO_NOT_TRANSLATE_KEYS[@]}"; do echo "--do-not-translate-frontmatter $key"; done)
+  $(for key in "${DO_NOT_TRANSLATE_KEYS[@]}"; do echo "--do-not-translate-frontmatter $key"; done) \
+  $DO_REGEX_FLAG \
+  $REMOVE_SPAN_FLAG
