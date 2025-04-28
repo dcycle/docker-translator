@@ -9,11 +9,11 @@ from datetime import datetime
 # pylint: disable=E0401
 import os
 # pylint: disable=E0401
+import json
+# pylint: disable=E0401
 import my_translate
 # pylint: disable=E0401
 import utilities
-# pylint: disable=E0401
-import json
 
 def generate_hash(content):
     """
@@ -113,7 +113,7 @@ def extract_and_write_translation(result, dest_file, args, source_hash):
     }
 
     # Update the content
-    final_content = utilities.append_updates_to_frontmatter(translated_text, updates)
+    final_content = utilities.update_frontmatter(translated_text, updates)
 
     # Write the file
     with open(dest_file, 'w', encoding='utf-8') as out_f:

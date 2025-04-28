@@ -67,7 +67,12 @@ def update_frontmatter(content, updates):
 
     if not match:
         # No frontmatter exists, create it
-        new_frontmatter = yaml.dump(updates, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        new_frontmatter = yaml.dump(
+            updates,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False
+        )
         return f"---\n{new_frontmatter}---\n{content}"
 
     # Update existing frontmatter
@@ -75,29 +80,12 @@ def update_frontmatter(content, updates):
     try:
         current = yaml.load(existing[4:-4], Loader=SafeLoader) or {}
         current.update(updates)
-        new_frontmatter = yaml.dump(current, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        new_frontmatter = yaml.dump(
+            current,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False
+        )
         return content.replace(existing, f"---\n{new_frontmatter}---\n")
     except yaml.YAMLError:
         return content
-
-def append_updates_to_frontmatter(content, updates):
-    # Separate frontmatter from the rest of the content
-    if content.startswith('---'):
-        parts = content.split('---\n', 1)
-        # Load YAML part
-        frontmatter = yaml.safe_load(parts[1].split('---')[0].strip())
-        body = parts[1].split('---', 1)[1] if len(parts) > 1 else ''
-    else:
-        frontmatter = {}
-        body = content
-
-    # Append the updates to the frontmatter
-    if 'updates' not in frontmatter:
-        frontmatter['updates'] = updates
-    else:
-        frontmatter['updates'].update(updates)
-
-    # Rebuild the YAML with the new frontmatter
-    new_frontmatter = yaml.dump(frontmatter, default_flow_style=False, sort_keys=False)
-    new_content = f"---\n{new_frontmatter}---\n{body}"
-    return new_content
