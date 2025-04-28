@@ -12,6 +12,8 @@ import os
 import my_translate
 # pylint: disable=E0401
 import utilities
+# pylint: disable=E0401
+import json
 
 def generate_hash(content):
     """
@@ -48,10 +50,10 @@ def replace_message_placeholders(message, args):
         str: The message with all placeholders replaced by their corresponding values.
     """
     replacements = {
-        '@Provider': args.provider,
+        '@provider': args.provider,
         '@source': args.source_lang,
         '@repo': 'http://github.com/dcycle/docker-translator',
-        '@Date': datetime.now().isoformat()[:10]  # YYYY-MM-DD
+        '@date': datetime.now().isoformat()[:10]  # YYYY-MM-DD
     }
     for placeholder, value in replacements.items():
         message = message.replace(placeholder, value)
@@ -105,19 +107,13 @@ def extract_and_write_translation(result, dest_file, args, source_hash):
     if existing_frontmatter is None:
         existing_frontmatter = {}
 
-    # Preserve do-not-translate fields
-    for key in args.do_not_translate_frontmatter:
-        if key in existing_frontmatter:
-            translation_metadata[key] = existing_frontmatter[key]
-
     # Prepare all frontmatter updates
     updates = {
-        args.langkey: args.dest_lang,  # Language key
-        args.translate_key: translation_metadata  # Translation info
+      args.translate_key: translation_metadata
     }
 
     # Update the content
-    final_content = utilities.update_frontmatter(translated_text, updates)
+    final_content = utilities.append_updates_to_frontmatter(translated_text, updates)
 
     # Write the file
     with open(dest_file, 'w', encoding='utf-8') as out_f:
@@ -138,7 +134,7 @@ def main():
     - Skipping translation of specific frontmatter keys.
     - Excluding lines matching a regex pattern from translation.
     - Removing <span translate='no'> tags from the content.
-    
+
     Args:
         None: The arguments are parsed from the command line via argparse.
 
@@ -159,7 +155,7 @@ def main():
       '--translate-message',
       default='Translated by @Provider from @source using @repo on @Date'
     )
-    parser.add_argument('--do-not-translate-frontmatter', nargs='*', default=[])
+    parser.add_argument('--do-not-translate-frontmatter', type=json.loads, default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
     parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
 
@@ -168,6 +164,21 @@ def main():
     # Simulate reading markdown content (you'd actually load the file)
     with open(args.source, 'r', encoding='utf-8') as f:
         markdown_content = f.read()
+
+    # Extract and update frontmatter to handle langkey
+    frontmatter = utilities.extract_frontmatter(markdown_content)
+    if frontmatter is None:
+        frontmatter = {}
+
+    # Update langkey in frontmatter with no-translate span
+    frontmatter[args.langkey] = (
+        '<span translate="no">__START_NO_TRANSLATE__'
+        + args.dest_lang
+        + '__END_NO_TRANSLATE__</span>'
+    )
+
+    # Reconstruct the content with updated frontmatter
+    markdown_content = utilities.update_frontmatter(markdown_content, frontmatter)
 
     preprocessors = []
     postprocessors = []

@@ -8,7 +8,7 @@ DEST_FOLDER=""
 PROVIDER="microsoft"
 TRANSLATE_KEY="translation"
 TRANSLATE_MESSAGE="Translated by @Provider from @source using @repo on @Date"
-DO_NOT_TRANSLATE_KEYS=()
+DO_NOT_TRANSLATE_KEYS=[]
 REGEX_PROC="False"
 REMOVE_SPAN="False"
 
@@ -25,7 +25,7 @@ usage() {
   echo "  --provider                    Translation provider (default: microsoft)"
   echo "  --translate-key               Frontmatter key for translation info"
   echo "  --translate-message           Translation message template"
-  echo "  --do-not-translate-frontmatter <key>  Key to exclude (can repeat)"
+  echo "  --do-not-translate-frontmatter Keys to exclude"
   echo "  --do-not-translate-regex      Enable regex exclusion"
   echo "  --remove-span-translate-no    Remove <span translate='no'>"
   exit 1
@@ -42,9 +42,7 @@ while [[ $# -gt 0 ]]; do
     --provider) PROVIDER="$2"; shift 2 ;;
     --translate-key) TRANSLATE_KEY="$2"; shift 2 ;;
     --translate-message) TRANSLATE_MESSAGE="$2"; shift 2 ;;
-    --do-not-translate-frontmatter)
-      DO_NOT_TRANSLATE_KEYS+=("$2")
-      shift 2 ;;
+    --do-not-translate-frontmatter) DO_NOT_TRANSLATE_KEYS=("$2"); shift 2 ;;
     --do-not-translate-regex) REGEX_PROC="True"; shift ;;
     --remove-span-translate-no) REMOVE_SPAN="True"; shift ;;
     *) echo "Unknown option: $1"; usage ;;
@@ -93,6 +91,7 @@ docker run \
   --langkey "$LANGKEY" \
   --translate-key "$TRANSLATE_KEY" \
   --translate-message "$TRANSLATE_MESSAGE" \
-  $(for key in "${DO_NOT_TRANSLATE_KEYS[@]}"; do echo "--do-not-translate-frontmatter $key"; done) \
+  --do-not-translate-frontmatter "$DO_NOT_TRANSLATE_KEYS" \
+  $DNT_FRONTMATTER \
   $DO_REGEX_FLAG \
   $REMOVE_SPAN_FLAG

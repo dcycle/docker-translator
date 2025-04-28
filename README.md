@@ -56,8 +56,6 @@ mkdir ./do-not-commit
   \ --provider simulate
   \ --translate-key translation_info_key
   \ --translate-message "Translated by @provider from @source using @repo on @date"
-  \ --do-not-translate-frontmatter something/abc
-  \ --do-not-translate-frontmatter xyz
 ```
 
 The arguments to ./scripts/translate-md.sh can have sensible defaults
@@ -88,11 +86,24 @@ example:-
   --provider simulate \
   --translate-key translation_info_key \
   --translate-message "Translated by @provider from @source using @repo on @date" \
-  --do-not-translate-frontmatter something/abc \
-  --do-not-translate-frontmatter xyz \
   --do-not-translate-regex \
   --remove-span-translate-no
 
+```
+
+```
+./scripts/translate-md.sh \
+  --source example01/test-file.md \
+  --langkey this_is_the_language_key \
+  --source-lang en \
+  --dest-lang fr \
+  --destination-folder do-not-commit \
+  --provider simulate \
+  --translate-key translation_info_key \
+  --translate-message "Translated by @provider from @source using @repo on @date" \
+  --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-regex \
+  --remove-span-translate-no
 ```
 
 More resources
