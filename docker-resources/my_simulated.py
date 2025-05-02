@@ -28,6 +28,8 @@ def translate(text, from_lg, to):
             'text': replace(text),
             'to': lg,
         })
-    return {
-        'translations': translations
-    }
+    return [
+        {
+            'translations': translations,
+        },
+    ]

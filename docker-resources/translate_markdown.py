@@ -70,7 +70,7 @@ def check_existing_translation(dest_file, source_hash, args):
     Args:
         dest_file (str): Path to the destination markdown file.
         source_hash (str): MD5 hash of the current source content.
-        args (argparse.Namespace): Parsed arguments including `source`, and `translate_key` 
+        args (argparse.Namespace): Parsed arguments including `source`, and `translate_key`
                                    used to locate the hash in the destination's frontmatter.
 
     Returns:
@@ -92,7 +92,7 @@ def check_existing_translation(dest_file, source_hash, args):
 
 def extract_and_write_translation(result, dest_file, args, source_hash):
     """Extract translation and write to file with updated frontmatter"""
-    translated_text = result['translations'][0]['text']
+    translated_text = result[0]['translations'][0]['text']
 
     # Prepare translation metadata
     translation_metadata = {
@@ -128,7 +128,7 @@ def main():
     This function reads a source markdown file, checks whether a translation already exists,
     applies various preprocessors and postprocessors based on the input arguments, and
     invokes a translation service to perform the translation. The translated content is
-    then saved to the destination file. 
+    then saved to the destination file.
 
     The function supports the following features based on input arguments:
     - Skipping translation of specific frontmatter keys.
