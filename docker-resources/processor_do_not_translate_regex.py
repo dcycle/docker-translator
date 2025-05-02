@@ -9,7 +9,7 @@ import re
 # pylint: disable=W0613
 def wrap_in_span(text, pattern):
     """
-    Function to wrap the matched text in 
+    Function to wrap the matched text in
     <span translate="no">__START_NO_TRANSLATE__....__END_NO_TRANSLATE__</span>
     """
     # Compile the regex pattern

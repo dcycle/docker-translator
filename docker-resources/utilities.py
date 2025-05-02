@@ -1,6 +1,13 @@
 """General utilities"""
 
+# pylint: disable=E0401
 import os
+# pylint: disable=E0401
+import re
+# pylint: disable=E0401
+import yaml
+# pylint: disable=E0401
+from yaml import SafeLoader
 
 def env(var, default=None):
     """Get environment variable; throw error if not set if default is None."""
@@ -30,3 +37,55 @@ def pretty_print(json_obj):
             separators=(',', ': '),
         ),
     )
+
+def heading(text):
+    """Print a heading"""
+    print('')
+    print('####')
+    print('# ' + text)
+    print('####')
+    print('')
+
+def extract_frontmatter(content):
+    """Extract YAML frontmatter from markdown content"""
+    frontmatter = {}
+    pattern = r'^---\n(.*?)\n---\n'
+    match = re.search(pattern, content, re.DOTALL)
+
+    if match:
+        frontmatter_str = match.group(1)
+        try:
+            frontmatter = yaml.load(frontmatter_str, Loader=SafeLoader) or {}
+        except yaml.YAMLError:
+            pass
+    return frontmatter
+
+def update_frontmatter(content, updates):
+    """Update frontmatter with new key-value pairs"""
+    pattern = r'^(---\n.*?\n---\n)'
+    match = re.search(pattern, content, re.DOTALL)
+
+    if not match:
+        # No frontmatter exists, create it
+        new_frontmatter = yaml.dump(
+            updates,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False
+        )
+        return f"---\n{new_frontmatter}---\n{content}"
+
+    # Update existing frontmatter
+    existing = match.group(1)
+    try:
+        current = yaml.load(existing[4:-4], Loader=SafeLoader) or {}
+        current.update(updates)
+        new_frontmatter = yaml.dump(
+            current,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False
+        )
+        return content.replace(existing, f"---\n{new_frontmatter}---\n")
+    except yaml.YAMLError:
+        return content

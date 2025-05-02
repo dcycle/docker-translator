@@ -45,4 +45,5 @@ def translate(text, from_lg, to):
     }]
 
     request = requests.post(constructed_url, params=params, headers=headers, json=body)
+    print(request.json(),'zzz')
     return request.json()

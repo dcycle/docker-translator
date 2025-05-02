@@ -15,15 +15,7 @@ def errors_exist():
     """Check if errors exist"""
     return len(missing_packages) or len(missing_env_vars) or len(network_errors)
 
-def heading(text):
-    """Print a heading"""
-    print('')
-    print('####')
-    print('# ' + text)
-    print('####')
-    print('')
-
-heading('Preflight check')
+utilities.heading('Preflight check')
 
 try:
     # pylint: disable=W0611
@@ -42,12 +34,12 @@ for env_var in ['MS_ENDPOINT', 'MS_LOC', 'MS_KEY']:
         print('[ok] environment variable ' + env_var + ' found')
 
 if errors_exist():
-    heading('Some errors were found')
+    utilities.heading('Some errors were found')
 else:
-    heading('No errors were found')
+    utilities.heading('No errors were found')
 
 for missing_package in missing_packages:
-    heading('Missing Package ' + missing_package)
+    utilities.heading('Missing Package ' + missing_package)
     print('You can fix this by running one of the following depending on your environment:')
     print('   ' + 'pip install ' + missing_package)
     print('   ' + 'pip3 install ' + missing_package)
@@ -56,7 +48,7 @@ for missing_package in missing_packages:
     print('')
 
 for missing_env_var in missing_env_vars:
-    heading('[error] missing env var: ' + missing_env_var)
+    utilities.heading('[error] missing env var: ' + missing_env_var)
     print('')
     print('See README.md on how to fix this')
     print('')
@@ -71,7 +63,7 @@ if utilities.env('MS_SIMULATE', False):
 else:
     PROVIDER = 'microsoft'
 
-heading('Call to translator')
+utilities.heading('Call to translator')
 utilities.pretty_print(my_translate.translate({
     'provider': PROVIDER,
     'text': 'Three can keep a secret, if two of them are dead.',
@@ -296,6 +288,45 @@ utilities.pretty_print(my_translate.translate({
           'description': 'Code line which begins with a comment',
         },
       },
+    ],
+    'postprocessors': [
+      {
+        'name' : 'remove-span-translate-no',
+        'args' : {},
+      }
+    ]
+  }
+))
+
+# title, description and regex matched text shouldn't be translated.
+# Ensure regex matches your text other wise we will end up in a error
+utilities.pretty_print(my_translate.translate({
+    'provider': PROVIDER,
+    'text': """
+    ---
+    title: "This should be translated"
+    something:
+    - whatever: This should be translated
+    something_else: "This should be translated"
+    this_is_the_language_key: en
+    ---
+    This should be translated
+
+        This should not be translated because it is preceded by four spaces and is code
+        // This should be translated because it is a comment
+
+    """,
+    'from_lg': 'en',
+    'to': ['fr'],
+    # pylint: disable=E0401
+    'preprocessors': [
+      {
+        # pylint: disable=E0401
+        'name' : 'do-not-translate-frontmatter-double-quote',
+        # pylint: disable=E0401
+        'args' : {
+        },
+      }
     ],
     'postprocessors': [
       {

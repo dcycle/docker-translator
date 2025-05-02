@@ -1,6 +1,6 @@
 FROM python:alpine
 
-RUN pip install requests && mkdir -p /app/code
+RUN pip install requests pyyaml && mkdir -p /app/code
 
 WORKDIR /app
 
