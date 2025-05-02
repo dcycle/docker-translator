@@ -13,7 +13,7 @@ if [ -v "$DIGITALOCEAN_SSH_KEY" ]; then
 fi
 
 # Create a droplet
-DROPLET_NAME=docker-translate
+DROPLET_NAME=docker-translator
 
 doctl compute droplet create "$DROPLET_NAME" --size 4gb --image ubuntu-20-04-x64 --ssh-keys "$DIGITALOCEAN_SSH_KEY"
 

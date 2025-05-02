@@ -6,4 +6,4 @@ docker run --rm \
   -e MS_ENDPOINT="$MS_ENDPOINT" \
   -e MS_LOC="$MS_LOC" \
   -e MS_KEY="$MS_KEY" \
-  local-translate-api-image preflight.py
+  local-translator-api-image preflight.py

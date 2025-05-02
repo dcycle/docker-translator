@@ -65,7 +65,7 @@ DEST_FILE="$DEST_FOLDER/${BASENAME}.${DEST_LANG}.md"
 
 # Pull and build Docker
 docker pull python:alpine
-docker build -t local-translate-api-image .
+docker build -t local-translator-api-image .
 
 mkdir -p $(pwd)/do-not-commit
 
@@ -81,7 +81,7 @@ docker run \
   -v "$(pwd)/example01:/app/example01" \
   -v "$(pwd)/docker-resources:/app" \
   -v "$(pwd)/do-not-commit:/app/do-not-commit" \
-  local-translate-api-image \
+  local-translator-api-image \
   /app/translate_markdown.py \
   --source "/app/$SOURCE" \
   --source-lang "$SOURCE_LANG" \
