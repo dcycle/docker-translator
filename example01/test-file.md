@@ -1,7 +1,9 @@
 ---
 title: "This should be translated"
 something:
-- whatever: This should be translated
+- whatever: "This should be translated"
+test: (This should be translated)
+test2: "(This should be translated)"
 something_else: "This should be translated"
 this_is_the_language_key: en
 ---
