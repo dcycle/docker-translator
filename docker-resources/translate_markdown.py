@@ -14,6 +14,17 @@ import json
 import my_translate
 # pylint: disable=E0401
 import utilities
+# pylint: disable=E0401
+import yaml
+# pylint: disable=E0401
+from yaml import SafeLoader
+
+class QuotedString(str): pass
+
+def quoted_presenter(dumper, data):
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+
+yaml.add_representer(QuotedString, quoted_presenter)
 
 def generate_hash(content):
     """
@@ -53,11 +64,13 @@ def replace_message_placeholders(message, args):
         '@provider': args.provider,
         '@source': args.source_lang,
         '@repo': 'http://github.com/dcycle/docker-translator',
-        '@date': datetime.now().isoformat()[:10]  # YYYY-MM-DD
+        '@date': datetime.now().isoformat()[:10]
     }
-    for placeholder, value in replacements.items():
-        message = message.replace(placeholder, value)
-    return message
+
+    for key, val in replacements.items():
+        message = message.replace(key, val)
+    # Just return it as QuotedString (no manual quotes)
+    return QuotedString(message)
 
 def check_existing_translation(dest_file, source_hash, args):
     """
