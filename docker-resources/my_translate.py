@@ -14,6 +14,10 @@ import processor_do_not_translate_frontmatter_doublequote
 import processor_do_not_translate_regex
 # pylint: disable=E0401
 import processor_remove_span_translate_no
+# pylint: disable=E0401
+import processor_escape_double_slash
+# pylint: disable=E0401
+import processor_unescape_double_slash
 
 # pylint: disable=W0613
 def translate(data):
@@ -50,6 +54,7 @@ def process(text, processors):
         text = processor(pr).process(text, pr['args'])
     return text
 
+# pylint: disable=R0911
 def processor(pr):
     """Get the processor"""
     if not 'name' in pr:
@@ -66,6 +71,10 @@ def processor(pr):
             return processor_do_not_translate_regex
         case 'remove-span-translate-no':
             return processor_remove_span_translate_no
+        case 'escape-double-slash':
+            return processor_escape_double_slash
+        case 'unescape-double-slash':
+            return processor_unescape_double_slash
         case _:
             raise EnvironmentError('processor must be set in my_translate.' +
             'processor() got ' + pr['name'])

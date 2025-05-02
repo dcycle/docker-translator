@@ -217,6 +217,15 @@ def main():
     if check_existing_translation(dest_file, source_hash, args):
         return
 
+    preprocessors.append({
+        'name': 'escape-double-slash',
+        'args': {}
+    })
+    postprocessors.append({
+        'name': 'unescape-double-slash',
+        'args': {}
+    })
+
     utilities.heading('Call to translator')
     result = my_translate.translate({
       'provider': args.provider,
