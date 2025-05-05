@@ -92,6 +92,7 @@ echo "[ok] preflight.py passes if environment vars are set"
   --translate-key translation_info_key \
   --translate-message "Translated by @provider from @source using @repo on @date" \
   --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-frontmatter-double-quote \
   --do-not-translate-regex \
   --remove-span-translate-no \
   --force-if-same-hash
