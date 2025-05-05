@@ -99,6 +99,27 @@ example:-
       --do-not-translate-regex \
       --remove-span-translate-no
 
+Force if same hash parameter
+-----
+    During development if you would like to be able to overwrite the translated file if necessary then
+    use --force-if-same-hash parameter in command.
+
+    ```
+    ./scripts/translate-md.sh --source example01/test-file.md \
+        --langkey this_is_the_language_key \
+        --source-lang en \
+        --dest-lang fr \
+        --destination-folder do-not-commit \
+        --provider simulate \
+        --translate-key translation_info_key \
+        --translate-message "Translated by @provider from @source using @repo on @date" \
+        --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+        --do-not-translate-regex \
+        --remove-span-translate-no \
+        --force-if-same-hash
+    ```
+
+
 More resources
 -----
 
