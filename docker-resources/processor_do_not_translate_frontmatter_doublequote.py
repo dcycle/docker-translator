@@ -139,31 +139,26 @@ def wrap_key_in_no_translate_span(line):
 
 def wrap_quoted_values(line):
     """
-    Wraps the quoted values in a line (after the colon) in a 'no-translate' span.
-
-    Args:
-    - line (str): The line to wrap.
-
-    Returns:
-    - str: The line with quoted values wrapped in a 'no-translate' span.
+    Wraps quoted values in a 'no-translate' span, but skips wrapping
+    if the value part is already entirely a <span translate="no">__START_NO_TRANSLATE__...__END_NO_TRANSLATE__</span>.
     """
+
     key_part, value_part = line.split(':', 1)
+    value_part = value_part.strip()
 
-    # Define the pattern for matching quoted values
-    pattern = r'("[^"]*")'
+    # Skip processing if already a wrapped no-translate span
+    already_wrapped_pattern = r'^<span translate="no">__START_NO_TRANSLATE__.*?__END_NO_TRANSLATE__</span>$'
+    if re.fullmatch(already_wrapped_pattern, value_part):
+        return f'{key_part}: {value_part}'
 
-    # Define the replacement function for quoted values
+    # Pattern to find quoted values
+    pattern = r'"([^"]*?)"'
+
     def wrap_quoted_value(match):
-        # Get the matched quoted string (without the surrounding quotes)
-        quoted_value = match.group(1)[1:-1]
-        # Wrap the quotes and the quoted value in no-translate spans
-        return (
-            '<span translate="no">__START_NO_TRANSLATE__"__END_NO_TRANSLATE__</span>'
-            + quoted_value +
-            '<span translate="no">__START_NO_TRANSLATE__"__END_NO_TRANSLATE__</span>'
-        )
+        quoted_value = match.group(1)
+        return f'<span translate="no">__START_NO_TRANSLATE__{quoted_value}__END_NO_TRANSLATE__</span>'
 
-    # Apply the regex substitution using the pattern and replacement function
+    # Apply substitution
     value_part = re.sub(pattern, wrap_quoted_value, value_part)
 
-    return f'{key_part}:{value_part}'
+    return f'{key_part}: {value_part}'

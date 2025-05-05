@@ -11,6 +11,7 @@ TRANSLATE_MESSAGE="Translated by @Provider from @source using @repo on @Date"
 DO_NOT_TRANSLATE_KEYS=[]
 REGEX_PROC="False"
 REMOVE_SPAN="False"
+DNT_FRONTMATTER_DOUBLE_QUOTE="False"
 
 # Usage function
 usage() {
@@ -26,6 +27,7 @@ usage() {
   echo "  --translate-key               Frontmatter key for translation info"
   echo "  --translate-message           Translation message template"
   echo "  --do-not-translate-frontmatter Keys to exclude"
+  echo "  --do-not-translate-frontmatter-double-quote dont translate double quotes in frontmatter"
   echo "  --do-not-translate-regex      Enable regex exclusion"
   echo "  --remove-span-translate-no    Remove <span translate='no'>"
   exit 1
@@ -43,6 +45,7 @@ while [[ $# -gt 0 ]]; do
     --translate-key) TRANSLATE_KEY="$2"; shift 2 ;;
     --translate-message) TRANSLATE_MESSAGE="$2"; shift 2 ;;
     --do-not-translate-frontmatter) DO_NOT_TRANSLATE_KEYS=("$2"); shift 2 ;;
+    --do-not-translate-frontmatter-double-quote) DNT_FRONTMATTER_DOUBLE_QUOTE="True"; shift ;;
     --do-not-translate-regex) REGEX_PROC="True"; shift ;;
     --remove-span-translate-no) REMOVE_SPAN="True"; shift ;;
     *) echo "Unknown option: $1"; usage ;;
@@ -72,6 +75,7 @@ mkdir -p $(pwd)/do-not-commit
 # Prepare optional flags
 [[ "$REGEX_PROC" == "True" ]] && DO_REGEX_FLAG="--do-not-translate-regex"
 [[ "$REMOVE_SPAN" == "True" ]] && REMOVE_SPAN_FLAG="--remove-span-translate-no"
+[[ "$DNT_FRONTMATTER_DOUBLE_QUOTE" == "True" ]] && DNT_FRONTMATTER_DOUBLE_QUOTE_FLAG="--do-not-translate-frontmatter-double-quote"
 
 # Run Docker translation
 docker run \
@@ -94,4 +98,5 @@ docker run \
   --do-not-translate-frontmatter "$DO_NOT_TRANSLATE_KEYS" \
   $DNT_FRONTMATTER \
   $DO_REGEX_FLAG \
-  $REMOVE_SPAN_FLAG
+  $REMOVE_SPAN_FLAG \
+  $DNT_FRONTMATTER_DOUBLE_QUOTE_FLAG

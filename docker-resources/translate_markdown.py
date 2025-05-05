@@ -155,6 +155,7 @@ def main():
       '--translate-message',
       default='Translated by @Provider from @source using @repo on @Date'
     )
+    parser.add_argument('--do-not-translate-frontmatter-double-quote', action='store_true', default=False)
     parser.add_argument('--do-not-translate-frontmatter', type=json.loads, default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
     parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
@@ -182,6 +183,12 @@ def main():
 
     preprocessors = []
     postprocessors = []
+
+    if args.do_not_translate_frontmatter_double_quote:
+        preprocessors.append({
+            'name': 'do-not-translate-frontmatter-double-quote',
+            'args': {}
+        })
 
     # Add 'do-not-translate-frontmatter' if the argument is set
     if args.do_not_translate_frontmatter:
