@@ -40,8 +40,6 @@ def translate(data):
         case _:
             raise EnvironmentError('provider must be set in my_transate.translate()')
 
-    print('ret', ret)
-
     for languages in ret[0]['translations']:
         languages['text'] = process(languages['text'], postprocessors)
 

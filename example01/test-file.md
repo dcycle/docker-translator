@@ -1,5 +1,5 @@
 ---
-title: "This should be translated"
+title: "This: should be 'test' translated"
 something:
 - whatever: This should be translated
 something_else: "This should be translated"
