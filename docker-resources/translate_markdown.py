@@ -83,7 +83,6 @@ def check_existing_translation(dest_file, source_hash, args):
     with open(dest_file, 'r', encoding='utf-8') as f:
         content = f.read()
         frontmatter = utilities.extract_frontmatter(content)
-
         if frontmatter.get(args.translate_key, {}).get('hash') == source_hash:
             print(f"Did not translate because source hash of {args.source}, {source_hash}, "
                   f"is the same as the source hash key in the existing destination file")
@@ -155,7 +154,10 @@ def main():
       '--translate-message',
       default='Translated by @Provider from @source using @repo on @Date'
     )
-    parser.add_argument('--do-not-translate-frontmatter-double-quote', action='store_true', default=False)
+    parser.add_argument('--do-not-translate-frontmatter-double-quote',
+      action='store_true',
+      default=False
+    )
     parser.add_argument('--do-not-translate-frontmatter', type=json.loads, default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
     parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
@@ -184,12 +186,6 @@ def main():
     preprocessors = []
     postprocessors = []
 
-    if args.do_not_translate_frontmatter_double_quote:
-        preprocessors.append({
-            'name': 'do-not-translate-frontmatter-double-quote',
-            'args': {}
-        })
-
     # Add 'do-not-translate-frontmatter' if the argument is set
     if args.do_not_translate_frontmatter:
         frontmatter_keys = args.do_not_translate_frontmatter
@@ -198,6 +194,12 @@ def main():
             'args': {
                 'frontmatter': frontmatter_keys
             }
+        })
+
+    if args.do_not_translate_frontmatter_double_quote:
+        preprocessors.append({
+            'name': 'do-not-translate-frontmatter-double-quote',
+            'args': {}
         })
 
     # Add 'do-not-translate-regex' if the argument is set

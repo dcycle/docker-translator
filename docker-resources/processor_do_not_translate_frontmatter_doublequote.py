@@ -24,14 +24,11 @@ def process(text, args=None):
     if args is None:
         args = {}
 
-    exclude_keys = args.get('exclude', [])
-    frontmatter_keys = args.get('frontmatter', [])
-
     # Split the text into pre, frontmatter, and post sections
     pre, frontmatter, post = split_frontmatter(text)
 
     # Process the frontmatter lines
-    processed_lines = process_frontmatter(frontmatter, exclude_keys, frontmatter_keys)
+    processed_lines = process_frontmatter(frontmatter)
 
     # Rebuild the full text with processed frontmatter
     processed_frontmatter = '\n'.join(processed_lines)
@@ -55,7 +52,7 @@ def split_frontmatter(text):
     post = '---'.join(parts[2:])
     return pre, frontmatter, post
 
-def process_frontmatter(frontmatter, exclude_keys, frontmatter_keys):
+def process_frontmatter(frontmatter):
     """
     Processes the frontmatter lines, applying the necessary transformations.
 
@@ -71,12 +68,12 @@ def process_frontmatter(frontmatter, exclude_keys, frontmatter_keys):
     processed_lines = []
 
     for line in lines:
-        processed_line = process_line(line, exclude_keys, frontmatter_keys)
+        processed_line = process_line(line)
         processed_lines.append(processed_line)
 
     return processed_lines
 
-def process_line(line, exclude_keys, frontmatter_keys):
+def process_line(line):
     """
     Processes a single line of frontmatter, applying the 'no-translate' span transformations.
 
@@ -88,77 +85,35 @@ def process_line(line, exclude_keys, frontmatter_keys):
     Returns:
     - str: The processed line.
     """
-    original_line = line.rstrip()
-    processed_line = line
+    processed_line = line.rstrip()
 
-    # Check if the key is in the excluded list
-    for key in exclude_keys:
-        if re.match(rf'^\s*{re.escape(key)}\s*:', original_line):
-            processed_line = wrap_in_no_translate_span(original_line)
-            break
-    else:
-        # Handle key wrapping (key name only, without colon)
-        if not exclude_keys or any(
-            re.match(rf'^\s*{re.escape(key)}\s*:', original_line) for key in frontmatter_keys
-        ):
-            processed_line = wrap_key_in_no_translate_span(line)
-
-        # Handle quoted values (only after colon)
-        if ':' in processed_line:
-            processed_line = wrap_quoted_values(processed_line)
+    # Handle quoted values (only after colon)
+    if ':' in processed_line:
+        processed_line = wrap_quoted_values(processed_line)
 
     return processed_line
 
-def wrap_in_no_translate_span(line):
-    """
-    Wraps the entire line in a 'no-translate' span.
-
-    Args:
-    - line (str): The line to wrap.
-
-    Returns:
-    - str: The line wrapped in a 'no-translate' span.
-    """
-    return f'<span translate="no">__START_NO_TRANSLATE__{line}__END_NO_TRANSLATE__</span>'
-
-def wrap_key_in_no_translate_span(line):
-    """
-    Wraps the key portion (before the colon) of the line in a 'no-translate' span.
-
-    Args:
-    - line (str): The line to wrap.
-
-    Returns:
-    - str: The line with the key wrapped in a 'no-translate' span.
-    """
-    return re.sub(
-        r'^(\s*)([^:#"\'\s]+)(\s*:)',
-        r'\1<span translate="no">__START_NO_TRANSLATE__\2__END_NO_TRANSLATE__</span>\3',
-        line
-    )
-
 def wrap_quoted_values(line):
     """
-    Wraps quoted values in a 'no-translate' span, but skips wrapping
-    if the value part is already entirely a <span translate="no">__START_NO_TRANSLATE__...__END_NO_TRANSLATE__</span>.
+    Wraps each double quote (") in the value part of a line in a no-translate span.
+    Skips wrapping if the value is already a fully-wrapped no-translate span.
     """
-
+    # Split into key and value
     key_part, value_part = line.split(':', 1)
     value_part = value_part.strip()
 
-    # Skip processing if already a wrapped no-translate span
-    already_wrapped_pattern = r'^<span translate="no">__START_NO_TRANSLATE__.*?__END_NO_TRANSLATE__</span>$'
+    # If value part is already fully wrapped in a no-translate span, skip it
+    already_wrapped_pattern = (
+        r'^<span translate="no">'
+        r'__START_NO_TRANSLATE__.*?__END_NO_TRANSLATE__'
+        r'</span>$'
+    )
+
     if re.fullmatch(already_wrapped_pattern, value_part):
         return f'{key_part}: {value_part}'
 
-    # Pattern to find quoted values
-    pattern = r'"([^"]*?)"'
-
-    def wrap_quoted_value(match):
-        quoted_value = match.group(1)
-        return f'<span translate="no">__START_NO_TRANSLATE__{quoted_value}__END_NO_TRANSLATE__</span>'
-
-    # Apply substitution
-    value_part = re.sub(pattern, wrap_quoted_value, value_part)
+    # Replace each double quote character " with wrapped version
+    quote_wrapper = '<span translate="no">__START_NO_TRANSLATE__"__END_NO_TRANSLATE__</span>'
+    value_part = value_part.replace('"', quote_wrapper)
 
     return f'{key_part}: {value_part}'

@@ -298,8 +298,7 @@ utilities.pretty_print(my_translate.translate({
   }
 ))
 
-# title, description and regex matched text shouldn't be translated.
-# Ensure regex matches your text other wise we will end up in a error
+# Preserve double quotes of frontmatter value
 utilities.pretty_print(my_translate.translate({
     'provider': PROVIDER,
     'text': """
