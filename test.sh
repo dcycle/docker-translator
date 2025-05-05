@@ -36,6 +36,32 @@ echo "[ok] preflight.py passes if environment vars are set"
   --do-not-translate-regex \
   --remove-span-translate-no
 
+./scripts/translate-md.sh --source example01/test-file.md \
+  --langkey this_is_the_language_key \
+  --source-lang en \
+  --dest-lang fr \
+  --destination-folder do-not-commit \
+  --provider simulate \
+  --translate-key translation_info_key \
+  --translate-message "Translated by @provider from @source using @repo on @date" \
+  --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-regex \
+  --remove-span-translate-no \
+  --force-if-same-hash
+
+
+./scripts/translate-md.sh --source example01/test-file.md \
+  --langkey this_is_the_language_key \
+  --source-lang en \
+  --dest-lang fr \
+  --destination-folder do-not-commit \
+  --provider simulate \
+  --translate-key translation_info_key \
+  --translate-message "Translated by @provider from @source using @repo on @date" \
+  --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-regex \
+  --remove-span-translate-no
+
 echo "[ok] translate-md.sh works with simulator"
 
 rm -rf ./do-not-commit

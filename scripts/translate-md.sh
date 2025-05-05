@@ -11,6 +11,7 @@ TRANSLATE_MESSAGE="Translated by @Provider from @source using @repo on @Date"
 DO_NOT_TRANSLATE_KEYS=[]
 REGEX_PROC="False"
 REMOVE_SPAN="False"
+FORCE_IF_SAME_HASH="False"
 
 # Usage function
 usage() {
@@ -28,6 +29,7 @@ usage() {
   echo "  --do-not-translate-frontmatter Keys to exclude"
   echo "  --do-not-translate-regex      Enable regex exclusion"
   echo "  --remove-span-translate-no    Remove <span translate='no'>"
+  echo "  --force-if-same-hash          The translation should take place even if the hash is the same."
   exit 1
 }
 
@@ -45,6 +47,7 @@ while [[ $# -gt 0 ]]; do
     --do-not-translate-frontmatter) DO_NOT_TRANSLATE_KEYS=("$2"); shift 2 ;;
     --do-not-translate-regex) REGEX_PROC="True"; shift ;;
     --remove-span-translate-no) REMOVE_SPAN="True"; shift ;;
+    --force-if-same-hash) FORCE_IF_SAME_HASH="True"; shift ;;
     *) echo "Unknown option: $1"; usage ;;
   esac
 done
@@ -72,6 +75,7 @@ mkdir -p $(pwd)/do-not-commit
 # Prepare optional flags
 [[ "$REGEX_PROC" == "True" ]] && DO_REGEX_FLAG="--do-not-translate-regex"
 [[ "$REMOVE_SPAN" == "True" ]] && REMOVE_SPAN_FLAG="--remove-span-translate-no"
+[[ "$FORCE_IF_SAME_HASH" == "True" ]] && FORCE_IF_SAME_HASH_FLAG="--force-if-same-hash"
 
 # Run Docker translation
 docker run \
@@ -94,4 +98,5 @@ docker run \
   --do-not-translate-frontmatter "$DO_NOT_TRANSLATE_KEYS" \
   $DNT_FRONTMATTER \
   $DO_REGEX_FLAG \
-  $REMOVE_SPAN_FLAG
+  $REMOVE_SPAN_FLAG \
+  $FORCE_IF_SAME_HASH_FLAG
