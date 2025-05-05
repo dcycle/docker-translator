@@ -15,6 +15,7 @@ import my_translate
 # pylint: disable=E0401
 import utilities
 
+
 def generate_hash(content):
     """
     Generate an MD5 hash from a given string.
@@ -161,6 +162,7 @@ def main():
     parser.add_argument('--do-not-translate-frontmatter', type=json.loads, default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
     parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
+    parser.add_argument('--force-if-same-hash', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -221,10 +223,14 @@ def main():
 
     source_hash = generate_hash(markdown_content)
 
-    # Check existing translation
     dest_file = args.destination
-    if check_existing_translation(dest_file, source_hash, args):
-        return
+    # If args.force_if_same_hash: This checks if the flag is not false or else
+    # env is not dev the only check hash is generated already.
+
+    if not args.force_if_same_hash :
+        # Check existing translation
+        if check_existing_translation(dest_file, source_hash, args):
+            return
 
     preprocessors.append({
         'name': 'escape-double-slash',

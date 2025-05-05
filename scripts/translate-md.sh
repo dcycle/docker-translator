@@ -12,6 +12,7 @@ DO_NOT_TRANSLATE_KEYS=[]
 REGEX_PROC="False"
 REMOVE_SPAN="False"
 DNT_FRONTMATTER_DOUBLE_QUOTE="False"
+FORCE_IF_SAME_HASH="False"
 
 # Usage function
 usage() {
@@ -30,6 +31,7 @@ usage() {
   echo "  --do-not-translate-frontmatter-double-quote dont translate double quotes in frontmatter"
   echo "  --do-not-translate-regex      Enable regex exclusion"
   echo "  --remove-span-translate-no    Remove <span translate='no'>"
+  echo "  --force-if-same-hash          The translation should take place even if the hash is the same."
   exit 1
 }
 
@@ -48,6 +50,7 @@ while [[ $# -gt 0 ]]; do
     --do-not-translate-frontmatter-double-quote) DNT_FRONTMATTER_DOUBLE_QUOTE="True"; shift ;;
     --do-not-translate-regex) REGEX_PROC="True"; shift ;;
     --remove-span-translate-no) REMOVE_SPAN="True"; shift ;;
+    --force-if-same-hash) FORCE_IF_SAME_HASH="True"; shift ;;
     *) echo "Unknown option: $1"; usage ;;
   esac
 done
@@ -76,6 +79,7 @@ mkdir -p $(pwd)/do-not-commit
 [[ "$REGEX_PROC" == "True" ]] && DO_REGEX_FLAG="--do-not-translate-regex"
 [[ "$REMOVE_SPAN" == "True" ]] && REMOVE_SPAN_FLAG="--remove-span-translate-no"
 [[ "$DNT_FRONTMATTER_DOUBLE_QUOTE" == "True" ]] && DNT_FRONTMATTER_DOUBLE_QUOTE_FLAG="--do-not-translate-frontmatter-double-quote"
+[[ "$FORCE_IF_SAME_HASH" == "True" ]] && FORCE_IF_SAME_HASH_FLAG="--force-if-same-hash"
 
 # Run Docker translation
 docker run \
@@ -99,4 +103,6 @@ docker run \
   $DNT_FRONTMATTER \
   $DO_REGEX_FLAG \
   $REMOVE_SPAN_FLAG \
-  $DNT_FRONTMATTER_DOUBLE_QUOTE_FLAG
+  $DNT_FRONTMATTER_DOUBLE_QUOTE_FLAG \
+  $FORCE_IF_SAME_HASH_FLAG \
+  echo "Done"
