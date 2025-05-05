@@ -102,7 +102,7 @@ example:-
 Force if same hash parameter
 -----
     During development if you would like to be able to overwrite the translated file if necessary then
-    use --force-if-same-hash parameter in command.
+    use --force-if-same-hash parameter in the command.
 
     ```
     ./scripts/translate-md.sh --source example01/test-file.md \
