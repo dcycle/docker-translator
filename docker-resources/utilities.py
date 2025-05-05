@@ -4,10 +4,6 @@
 import os
 # pylint: disable=E0401
 import re
-# pylint: disable=E0401
-import yaml
-# pylint: disable=E0401
-from yaml import SafeLoader
 
 def env(var, default=None):
     """Get environment variable; throw error if not set if default is None."""
@@ -47,45 +43,54 @@ def heading(text):
     print('')
 
 def extract_frontmatter(content):
-    """Extract YAML frontmatter from markdown content"""
+    """Extract YAML frontmatter from markdown content without using yaml.load"""
     frontmatter = {}
     pattern = r'^---\n(.*?)\n---\n'
     match = re.search(pattern, content, re.DOTALL)
 
     if match:
         frontmatter_str = match.group(1)
-        try:
-            frontmatter = yaml.load(frontmatter_str, Loader=SafeLoader) or {}
-        except yaml.YAMLError:
-            pass
+        lines = frontmatter_str.strip().split('\n')
+        for line in lines:
+            if ':' in line:
+                key, value = line.split(':', 1)
+                frontmatter[key.strip()] = value.strip()
     return frontmatter
 
+def dict_to_yaml(data, indent=0):
+    """Convert a dict to YAML (supports nested dictionaries and lists)"""
+    lines = []
+    indent_str = '  ' * indent
+    for key, value in data.items():
+        if isinstance(value, dict):
+            lines.append(f"{indent_str}{key}:")
+            for subkey, subvalue in value.items():
+                lines.append(f"{indent_str}  {subkey}: {subvalue}")
+        elif isinstance(value, list):
+            lines.append(f"{indent_str}{key}:")
+            for item in value:
+                if isinstance(item, dict):
+                    lines.append(f"{indent_str}-")
+                    for subkey, subvalue in item.items():
+                        lines.append(f"{indent_str}  {subkey}: {subvalue}")
+                else:
+                    lines.append(f"{indent_str}- {item}")
+        else:
+            lines.append(f"{indent_str}{key}: {value}")
+    return '\n'.join(lines)
+
+
 def update_frontmatter(content, updates):
-    """Update frontmatter with new key-value pairs"""
+    """Update YAML frontmatter in markdown content without using yaml.dump"""
     pattern = r'^(---\n.*?\n---\n)'
     match = re.search(pattern, content, re.DOTALL)
 
     if not match:
-        # No frontmatter exists, create it
-        new_frontmatter = yaml.dump(
-            updates,
-            allow_unicode=True,
-            default_flow_style=False,
-            sort_keys=False
-        )
-        return f"---\n{new_frontmatter}---\n{content}"
+        new_frontmatter = dict_to_yaml(updates)
+        return f"---\n{new_frontmatter}\n---\n{content}"
 
-    # Update existing frontmatter
     existing = match.group(1)
-    try:
-        current = yaml.load(existing[4:-4], Loader=SafeLoader) or {}
-        current.update(updates)
-        new_frontmatter = yaml.dump(
-            current,
-            allow_unicode=True,
-            default_flow_style=False,
-            sort_keys=False
-        )
-        return content.replace(existing, f"---\n{new_frontmatter}---\n")
-    except yaml.YAMLError:
-        return content
+    current = extract_frontmatter(content)
+    current.update(updates)
+    new_frontmatter = dict_to_yaml(current)
+    return content.replace(existing, f"---\n{new_frontmatter}\n---\n")
