@@ -57,7 +57,7 @@ def replace_message_placeholders(message, args):
     }
     for placeholder, value in replacements.items():
         message = message.replace(placeholder, value)
-    return message
+    return f'"{message}"'
 
 def check_existing_translation(dest_file, source_hash, args):
     """
@@ -248,8 +248,6 @@ def main():
       'preprocessors': preprocessors,
       'postprocessors': postprocessors
     })
-
-    utilities.pretty_print(result)
 
     # Extract and write the translated content to the file
     extract_and_write_translation(result, dest_file, args, source_hash)
