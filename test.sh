@@ -40,6 +40,36 @@ echo "[ok] preflight.py passes if environment vars are set"
       --do-not-translate-regex \
       --remove-span-translate-no
 
+# create translation again using --force-if-same-hash
+./scripts/translate-md.sh --source example01/test-file.md \
+  --langkey this_is_the_language_key \
+  --source-lang en \
+  --dest-lang fr \
+  --destination-folder do-not-commit \
+  --provider simulate \
+  --translate-key translation_info_key \
+  --translate-message "Translated by @provider from @source using @repo on @date" \
+  --do-not-translate-frontmatter-double-quote \
+  --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-regex \
+  --remove-span-translate-no \
+  --force-if-same-hash
+
+# throw error hash if same hash present
+./scripts/translate-md.sh --source example01/test-file.md \
+  --langkey this_is_the_language_key \
+  --source-lang en \
+  --dest-lang fr \
+  --destination-folder do-not-commit \
+  --provider simulate \
+  --translate-key translation_info_key \
+  --translate-message "Translated by @provider from @source using @repo on @date" \
+  --do-not-translate-frontmatter-double-quote \
+  --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-regex \
+  --remove-span-translate-no
+
+# create translation again using --force-if-same-hash
 ./scripts/translate-md.sh --source example01/test-file.md \
   --langkey this_is_the_language_key \
   --source-lang en \
@@ -53,7 +83,6 @@ echo "[ok] preflight.py passes if environment vars are set"
   --remove-span-translate-no \
   --force-if-same-hash
 
-
 ./scripts/translate-md.sh --source example01/test-file.md \
   --langkey this_is_the_language_key \
   --source-lang en \
@@ -63,9 +92,13 @@ echo "[ok] preflight.py passes if environment vars are set"
   --translate-key translation_info_key \
   --translate-message "Translated by @provider from @source using @repo on @date" \
   --do-not-translate-frontmatter '["title", "something", "whatever"]' \
+  --do-not-translate-frontmatter-double-quote \
   --do-not-translate-regex \
-  --remove-span-translate-no
+  --remove-span-translate-no \
+  --force-if-same-hash
 
 echo "[ok] translate-md.sh works with simulator"
+
+cat ./do-not-commit/test-file.fr.md
 
 rm -rf ./do-not-commit
