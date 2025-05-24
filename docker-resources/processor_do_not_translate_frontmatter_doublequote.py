@@ -11,7 +11,7 @@ import re
 
 def process(text, args=None):
     """
-    Main processor function that breaks down the YAML frontmatter, processes keys, 
+    Main processor function that breaks down the YAML frontmatter, processes keys,
     values, and applies 'no-translate' spans as needed.
 
     Args:

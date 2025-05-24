@@ -9,6 +9,11 @@ import utilities
 def translate(text, from_lg, to):
     """Transalte text from one language to another using Microsoft Translator Text API"""
 
+    if text == "____Simulate error____":
+        return {
+            'error': 'Simulated error',
+        }
+
     endpoint = utilities.env('MS_ENDPOINT')
     location = utilities.env('MS_LOC')
     key = utilities.env('MS_KEY')
@@ -45,5 +50,4 @@ def translate(text, from_lg, to):
     }]
 
     request = requests.post(constructed_url, params=params, headers=headers, json=body)
-    print(request.json(),'zzz')
     return request.json()

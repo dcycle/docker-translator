@@ -20,6 +20,11 @@ def read_file(filename):
     with open(filename, encoding="utf-8") as f:
         f.read()
 
+def log(text):
+    """Print debug information if debug is set"""
+    if env('DEBUG', False):
+        print(text)
+
 def pretty_print(json_obj):
     """Pretty print JSON."""
     # pylint: disable=C0415

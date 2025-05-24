@@ -24,6 +24,11 @@ def replace(text, translate_me=True):
 # pylint: disable=W0613
 def translate(text, from_lg, to):
     """Simulation of a translation. Replace all e's with o's"""
+    if text == "____Simulate error____":
+        return {
+            'error': 'Simulated error',
+        }
+
     translations = []
     for lg in to:
         translations.append({

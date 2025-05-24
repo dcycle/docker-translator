@@ -15,7 +15,6 @@ import my_translate
 # pylint: disable=E0401
 import utilities
 
-
 def generate_hash(content):
     """
     Generate an MD5 hash from a given string.
@@ -148,23 +147,25 @@ def main():
     parser.add_argument('--source', required=True)
     parser.add_argument('--source-lang', required=True)
     # Add the destination-folder argument
-    parser.add_argument('--destination', default=None)
+    parser.add_argument('--destination', required=True)
     parser.add_argument('--dest-lang', required=True)
     parser.add_argument('--provider', default='microsoft')
     parser.add_argument('--langkey', default='lang')
     parser.add_argument('--translate-key', default='translation')
     parser.add_argument(
       '--translate-message',
-      default='Translated by @Provider from @source using @repo on @Date'
+      default='Translated by @provider from @source using @repo on @date'
     )
     parser.add_argument('--do-not-translate-frontmatter-double-quote',
       action='store_true',
-      default=False
+      default=True
     )
     parser.add_argument('--do-not-translate-frontmatter', type=json.loads, default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
-    parser.add_argument('--remove-span-translate-no', action='store_true', default=False)
+    parser.add_argument('--remove-span-translate-no', action='store_true', default=True)
     parser.add_argument('--force-if-same-hash', action='store_true', default=False)
+    parser.add_argument('--preprocessors', default="[]")
+    parser.add_argument('--postprocessors', default="[]")
 
     args = parser.parse_args()
 
@@ -187,8 +188,14 @@ def main():
     # Reconstruct the content with updated frontmatter
     markdown_content = utilities.update_frontmatter(markdown_content, frontmatter)
 
-    preprocessors = []
-    postprocessors = []
+    preprocessors = json.loads(args.preprocessors)
+    postprocessors = json.loads(args.postprocessors)
+
+    if args.do_not_translate_frontmatter_double_quote:
+        preprocessors.append({
+            'name': 'do-not-translate-frontmatter-double-quote',
+            'args': {}
+        })
 
     # Add 'do-not-translate-frontmatter' if the argument is set
     if args.do_not_translate_frontmatter:
@@ -198,12 +205,6 @@ def main():
             'args': {
                 'frontmatter': frontmatter_keys
             }
-        })
-
-    if args.do_not_translate_frontmatter_double_quote:
-        preprocessors.append({
-            'name': 'do-not-translate-frontmatter-double-quote',
-            'args': {}
         })
 
     # Add 'do-not-translate-regex' if the argument is set
@@ -243,7 +244,7 @@ def main():
         'args': {}
     })
 
-    utilities.heading('Call to translator')
+    utilities.heading('Call to translator (markdown)')
     result = my_translate.translate({
       'provider': args.provider,
       'text': markdown_content,
@@ -254,7 +255,7 @@ def main():
       'translate_message': args.translate_message,
       'do_not_translate_frontmatter': args.do_not_translate_frontmatter,
       'preprocessors': preprocessors,
-      'postprocessors': postprocessors
+      'postprocessors': postprocessors,
     })
 
     # Extract and write the translated content to the file

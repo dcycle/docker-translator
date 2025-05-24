@@ -20,6 +20,7 @@ usage() {
   echo
   echo "Options:"
   echo "  --source                      Source markdown file (required)"
+  echo "  --debug                       Debug mode (default: False)"
   echo "  --langkey                     Frontmatter language key (default: lang)"
   echo "  --source-lang                 Source language (required)"
   echo "  --dest-lang                   Destination language (required)"
@@ -105,4 +106,4 @@ docker run \
   $REMOVE_SPAN_FLAG \
   $DNT_FRONTMATTER_DOUBLE_QUOTE_FLAG \
   $FORCE_IF_SAME_HASH_FLAG \
-  echo "Done"
+  && echo "Done"

@@ -26,12 +26,22 @@ except ImportError:
     missing_packages.append('requests')
     print('[error] packages requests not found')
 
-for env_var in ['MS_ENDPOINT', 'MS_LOC', 'MS_KEY']:
-    if utilities.env(env_var) is None:
-        print('[error] environment variable ' + env_var + ' not found')
-        missing_env_vars.append(env_var)
-    else:
-        print('[ok] environment variable ' + env_var + ' found')
+if not utilities.env('MS_SIMULATE', False):
+    for env_var in ['MS_ENDPOINT', 'MS_LOC', 'MS_KEY']:
+        if not utilities.env(env_var, False):
+            print('')
+            print('preflight usage: set either MS_ENDPOINT, MS_LOC and MS_KEY')
+            print('or set MS_SIMULATE to True')
+            print('')
+            sys.exit(os.EX_CONFIG)
+
+if not utilities.env('MS_SIMULATE', False):
+    for env_var in ['MS_ENDPOINT', 'MS_LOC', 'MS_KEY']:
+        if utilities.env(env_var) is None:
+            print('[error] environment variable ' + env_var + ' not found')
+            missing_env_vars.append(env_var)
+        else:
+            print('[ok] environment variable ' + env_var + ' found')
 
 if errors_exist():
     utilities.heading('Some errors were found')
@@ -63,7 +73,31 @@ if utilities.env('MS_SIMULATE', False):
 else:
     PROVIDER = 'microsoft'
 
-utilities.heading('Call to translator')
+print('Test error handling')
+print('The following error is normal')
+ERROR_HANDLING_WORKS = True
+try:
+    my_translate.translate({
+        'provider': PROVIDER,
+        'text': '____Simulate error____',
+        'from_lg': 'en',
+        'to': ['es', 'fr'],
+        'preprocessors': preprocessors,
+        'postprocessors': postprocessors
+      }
+    )
+    ERROR_HANDLING_WORKS = False
+# pylint: disable=W0718
+except Exception as e:
+    print('Error: ' + str(e))
+    print('This is expected, as we are simulating an error')
+    print('')
+
+if not ERROR_HANDLING_WORKS:
+    print('Error handling code failed')
+    raise EnvironmentError('Error handling code failed')
+
+utilities.heading('Call to translator (preflight)')
 utilities.pretty_print(my_translate.translate({
     'provider': PROVIDER,
     'text': 'Three can keep a secret, if two of them are dead.',
@@ -335,3 +369,9 @@ utilities.pretty_print(my_translate.translate({
     ]
   }
 ))
+
+utilities.pretty_print([
+  '',
+  'Preflight check complete',
+  '',
+])
