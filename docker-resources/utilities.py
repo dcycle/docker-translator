@@ -99,3 +99,21 @@ def update_frontmatter(content, updates):
     current.update(updates)
     new_frontmatter = dict_to_yaml(current)
     return content.replace(existing, f"---\n{new_frontmatter}\n---\n")
+
+def split_frontmatter(text):
+    """
+    Splits the YAML text into three parts: pre, frontmatter, and post.
+
+    Args:
+    - text (str): The raw YAML text.
+
+    Returns:
+    - tuple: A tuple of (pre, frontmatter, post) parts of the text.
+    """
+    parts = text.split('---')
+    if len(parts) < 3:
+        return False, '', '', text
+    pre = parts[0]
+    frontmatter = parts[1]
+    post = '---'.join(parts[2:])
+    return True, pre, frontmatter, post

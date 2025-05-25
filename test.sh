@@ -13,6 +13,9 @@ docker run --rm -v $(pwd)/docker-resources:/app/code dcycle/python-lint:2 ./code
 docker pull python:alpine
 docker build -t local-translator-api-image .
 
+docker run --rm local-translator-api-image \
+  processor_translate_frontmatter_test.py
+
 ! docker run --rm local-translator-api-image preflight.py
 echo "[ok] preflight.py returns an error if no environment vars are set"
 

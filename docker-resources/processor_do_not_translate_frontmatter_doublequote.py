@@ -8,6 +8,8 @@ Processes YAML frontmatter to:
 
 # pylint: disable=E0401
 import re
+# pylint: disable=E0401
+import utilities
 
 def process(text, args=None):
     """
@@ -21,11 +23,15 @@ def process(text, args=None):
     Returns:
     - str: Processed YAML frontmatter text.
     """
+    # pylint: disable=R0801
     if args is None:
         args = {}
 
     # Split the text into pre, frontmatter, and post sections
-    pre, frontmatter, post = split_frontmatter(text)
+    valid, pre, frontmatter, post = utilities.split_frontmatter(text)
+
+    if not valid:
+        return text
 
     # Process the frontmatter lines
     processed_lines = process_frontmatter(frontmatter)
@@ -33,24 +39,6 @@ def process(text, args=None):
     # Rebuild the full text with processed frontmatter
     processed_frontmatter = '\n'.join(processed_lines)
     return f"{pre}---\n{processed_frontmatter}\n---{post}"
-
-def split_frontmatter(text):
-    """
-    Splits the YAML text into three parts: pre, frontmatter, and post.
-
-    Args:
-    - text (str): The raw YAML text.
-
-    Returns:
-    - tuple: A tuple of (pre, frontmatter, post) parts of the text.
-    """
-    parts = text.split('---')
-    if len(parts) < 3:
-        return text, '', ''
-    pre = parts[0]
-    frontmatter = parts[1]
-    post = '---'.join(parts[2:])
-    return pre, frontmatter, post
 
 def process_frontmatter(frontmatter):
     """
@@ -64,6 +52,7 @@ def process_frontmatter(frontmatter):
     Returns:
     - list: A list of processed frontmatter lines.
     """
+    # pylint: disable=R0801
     lines = frontmatter.strip().split('\n')
     processed_lines = []
 
@@ -85,6 +74,7 @@ def process_line(line):
     Returns:
     - str: The processed line.
     """
+    # pylint: disable=R0801
     processed_line = line.rstrip()
 
     # Handle quoted values (only after colon)
@@ -98,6 +88,7 @@ def wrap_quoted_values(line):
     Wraps each double quote (") in the value part of a line in a no-translate span.
     Skips wrapping if the value is already a fully-wrapped no-translate span.
     """
+    # pylint: disable=R0801
     # Split into key and value
     key_part, value_part = line.split(':', 1)
     value_part = value_part.strip()
