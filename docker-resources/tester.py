@@ -16,14 +16,14 @@ def read(filename):
     with open(filename, encoding="utf-8") as file:
         return file.read()
 
-def test(processor, textfile, args):
+def test(desc, processor, textfile, args):
     """
     Test a processor.
     """
     text = read(processor.__name__ + '_test/' + textfile + '.txt')
     expected = read(processor.__name__ + '_test/' + textfile + '_expected.txt')
 
-    print('testing ' + processor.__name__)
+    print('testing ' + processor.__name__ + ' ' + desc)
     print('text is')
     print(text)
     print('args are')
@@ -36,4 +36,4 @@ def test(processor, textfile, args):
     print(json.dumps(result))
     print(result)
     if result != expected:
-        raise AssertionError('Test failed')
+        raise AssertionError('Test failed ' + desc)

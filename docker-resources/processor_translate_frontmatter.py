@@ -4,8 +4,6 @@ Processes YAML frontmatter to:
 """
 
 # pylint: disable=E0401
-import re
-# pylint: disable=E0401
 import utilities
 
 def process(text, args=None):
@@ -24,6 +22,10 @@ def process(text, args=None):
 
     if 'translate' not in args:
         args['translate'] = []
+    if 's' not in args:
+        args['s'] = '<span translate="no">__START_NO_TRANSLATE__'
+    if 'e' not in args:
+        args['e'] = '__END_NO_TRANSLATE__</span>'
 
     # Split the text into pre, frontmatter, and post sections
     valid, pre, frontmatter, post = utilities.split_frontmatter(text)
@@ -77,31 +79,17 @@ def process_line(line, args):
 
     # Handle quoted values (only after colon)
     if key_part in args['translate']:
-        return wrap_quoted_values(line)
+        return args['s'] + key_part + ':' + args['e'] + wrap_quoted_values(value_part, args)
 
-    return '<span translate="no">' + line + '</span>'
+    return args['s'] + line + args['e']
 
-def wrap_quoted_values(line):
+def wrap_quoted_values(value_part, args):
     """
     Wraps each double quote (") in the value part of a line in a no-translate span.
     Skips wrapping if the value is already a fully-wrapped no-translate span.
     """
     # Split into key and value
-    key_part, value_part = line.split(':', 1)
-    value_part = value_part.strip()
-
-    # If value part is already fully wrapped in a no-translate span, skip it
-    already_wrapped_pattern = (
-        r'^<span translate="no">'
-        r'__START_NO_TRANSLATE__.*?__END_NO_TRANSLATE__'
-        r'</span>$'
-    )
-
-    if re.fullmatch(already_wrapped_pattern, value_part):
-        return f'{key_part}: {value_part}'
 
     # Replace each double quote character " with wrapped version
-    quote_wrapper = '<span translate="no">__START_NO_TRANSLATE__"__END_NO_TRANSLATE__</span>'
-    value_part = value_part.replace('"', quote_wrapper)
-
-    return f'{key_part}: {value_part}'.rstrip()
+    quote_wrapper = args['s'] + '"' + args['e']
+    return value_part.replace('"', quote_wrapper)

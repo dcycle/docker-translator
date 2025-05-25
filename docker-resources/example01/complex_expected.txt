@@ -1,7 +1,0 @@
----
-<span translate="no">title: test</span>
-<span translate="no">multiple_embedded:</span>
-<span translate="no">  multiple_embedded: "this: contains a colon and quotes"</span>
-<span translate="no">    multiple_embedded: "this: contains a colon and quotes"</span>
----
-This is a test
