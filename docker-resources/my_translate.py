@@ -11,6 +11,8 @@ import processor_add_to_start
 # pylint: disable=E0401
 import processor_do_not_translate_frontmatter
 # pylint: disable=E0401
+import processor_translate_frontmatter
+# pylint: disable=E0401
 import processor_do_not_translate_frontmatter_doublequote
 # pylint: disable=E0401
 import processor_do_not_translate_regex
@@ -22,6 +24,10 @@ import processor_remove_span_translate_no_simple
 import processor_escape_double_slash
 # pylint: disable=E0401
 import processor_unescape_double_slash
+# pylint: disable=E0401
+import processor_escape_newline
+# pylint: disable=E0401
+import processor_unescape_newline
 
 # pylint: disable=W0613
 def translate(data):
@@ -89,6 +95,8 @@ def processor(pr):
             return processor_add_to_start
         case 'do-not-translate-frontmatter':
             return processor_do_not_translate_frontmatter
+        case 'translate-frontmatter':
+            return processor_translate_frontmatter
         case 'do-not-translate-frontmatter-double-quote':
             return processor_do_not_translate_frontmatter_doublequote
         case 'do-not-translate-regex':
@@ -101,6 +109,10 @@ def processor(pr):
             return processor_escape_double_slash
         case 'unescape-double-slash':
             return processor_unescape_double_slash
+        case 'escape-newline':
+            return processor_escape_newline
+        case 'unescape-newline':
+            return processor_unescape_newline
         case _:
             raise EnvironmentError('processor must be set in my_translate.' +
             'processor() got ' + pr['name'])

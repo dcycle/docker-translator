@@ -7,7 +7,7 @@ To try this without valid credentials, using a simulator instead (which pseudo-t
 
     docker run --rm \
       -e MS_SIMULATE="true" \
-      local-translator-api-image \
+      dcycle/translator:1 \
       preflight.py
 
 This checks that our internal code is running correctly.
@@ -23,7 +23,7 @@ Usage with Microsoft credentials
       -e MS_ENDPOINT=https://api.cognitive.microsofttranslator.com/ \
       -e MS_KEY=abc123abc123 \
       -e MS_LOC=eastus \
-      local-translator-api-image \
+      dcycle/translator:1 \
       preflight.py
 
 Troubleshooting
@@ -56,7 +56,7 @@ And you can call your prelight like this:
       -e MS_ENDPOINT="$MS_ENDPOINT" \
       -e MS_KEY="$MS_KEY" \
       -e MS_LOC="$MS_LOC" \
-      local-translator-api-image \
+      dcycle/translator:1 \
       preflight.py
 
 Your first translation
@@ -68,7 +68,7 @@ Let's say you want to translate the sentence "La liberté commence où l'ignoran
       -e MS_ENDPOINT="$MS_ENDPOINT" \
       -e MS_KEY="$MS_KEY" \
       -e MS_LOC="$MS_LOC" \
-      local-translator-api-image \
+      dcycle/translator:1 \
       translate.py \
       --text "La liberté commence où l'ignorance finit." \
       --source-lang fr \
@@ -96,7 +96,7 @@ But because The Queen of Egypt is the name of a ship, you might not want to tran
       -e MS_ENDPOINT="$MS_ENDPOINT" \
       -e MS_KEY="$MS_KEY" \
       -e MS_LOC="$MS_LOC" \
-      local-translator-api-image \
+      dcycle/translator:1 \
       translate.py \
       --text 'I met her on the ship <span translate="no">The Queen of Egypt</span>.' \
       --source-lang en \
@@ -116,7 +116,7 @@ Processors can change text before or after it is translated. Let's say you are h
       -e MS_ENDPOINT="$MS_ENDPOINT" \
       -e MS_KEY="$MS_KEY" \
       -e MS_LOC="$MS_LOC" \
-      local-translator-api-image \
+      dcycle/translator:1 \
       translate.py \
       --text 'I met her on the ship <span translate="no">The Queen of Egypt</span>.' \
       --source-lang en \
@@ -146,7 +146,7 @@ And you want to translate it to Spanish and put the result in a file called ./do
       -e MS_KEY="$MS_KEY" \
       -e MS_LOC="$MS_LOC" \
       -v "$(pwd)":/data \
-      local-translator-api-image \
+      dcycle/translator:1 \
       translate_file.py \
       --source /data/example01/file-file01.txt \
       --destination /data/do-not-commit/file-file01.es.txt \
@@ -183,7 +183,7 @@ Let's try translating this file to French using the technique above:
       -e MS_KEY="$MS_KEY" \
       -e MS_LOC="$MS_LOC" \
       -v "$(pwd)":/data \
-      local-translator-api-image \
+      dcycle/translator:1 \
       translate_file.py \
       --source /data/example01/simple-frontmatter.md \
       --destination /data/do-not-commit/simple-frontmatter.fr.md \
@@ -208,150 +208,61 @@ Furthermore, the keys in our front matter (title, layout, lang) should be preser
 
 For all these purposes, a different technique can be used to translate markdown files with front matter:
 
-    docker run \
+    docker run --rm \
       -e MS_ENDPOINT="$MS_ENDPOINT" \
-      -e MS_LOC="$MS_LOC" \
       -e MS_KEY="$MS_KEY" \
+      -e MS_LOC="$MS_LOC" \
       -v "$(pwd)":/data \
-      local-translator-api-image \
-      /app/translate_markdown.py \
+      dcycle/translator:1 \
+      translate_markdown.py \
       --source /data/example01/simple-frontmatter.md \
       --destination /data/do-not-commit/simple-frontmatter.fr.md \
       --source-lang en \
       --dest-lang fr \
-      --do-not-translate-frontmatter '["title", "layout", "lang"]' \
-      --provider microsoft
+      --provider microsoft \
+      --preprocessors '[{"name": "translate-frontmatter", "args": {}}]' \
+      --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
 
-
-
-
-    ---
-    title: "This: should be 'test' translated"
-    something:
-    - whatever: This should be translated
-    something_else: "This should be translated"
-    this_is_the_language_key: en
-    ---
-    This should be translated
-
-        This should not be translated because it is preceded by four spaces and is code
-        // This should be translated because it is a comment
-
-
-
-
-
-
-
-Start by configuring your variables:
-
-
-Then run a basic test, confirms everything works, you can run:
-
-    ./scripts/preflight.sh
-
-Adding the configuration to your profile file
------
-
-If you don't want to type in your configuration every time you use this, you can add your configuration to your `.zshenv` or `.bash_profile` files so they will be available every time you open a session.
-
-Translate markdown files from one language to another, preserving frontmatter
------
-
-Add a file in ./example01 which has the title "test-file.md" and the following contents:
+This will yield:
 
     ---
-    title: "This should be translated"
-    something:
-    - whatever: This should be translated
-    something_else: "This should be translated"
-    this_is_the_language_key: en
+    title: "Quote: from Shakespeare's Hamlet"layout: quotelang: fr
+    translation:
+      hash: 8bc3cc6d31bdb35f75985ad3d2e697e7
+      message: "Translated by microsoft from en using http://github.com/dcycle/docker-translator on 2025-05-26"
     ---
-    This should be translated
+    Il n’y a rien de bon ou de mauvais, mais c’est la pensée qui le fait.
 
-        This should not be translated because it is preceded by four spaces and is code
-        // This should be translated because it is a comment
+This is good, but we would like the title to be translated. This can be achieved by:
 
-Make a script called ./scripts/translate-md.sh
-
-It should be possible to call it like this:
-
-    mkdir ./do-not-commit
-
-    ./scripts/translate-md.sh \
-      --source example01/test-file.md \
-      --langkey this_is_the_language_key \
+    docker run --rm \
+      -e MS_ENDPOINT="$MS_ENDPOINT" \
+      -e MS_KEY="$MS_KEY" \
+      -e MS_LOC="$MS_LOC" \
+      -v "$(pwd)":/data \
+      dcycle/translator:1 \
+      translate_markdown.py \
+      --source /data/example01/simple-frontmatter.md \
+      --destination /data/do-not-commit/simple-frontmatter.fr.md \
       --source-lang en \
       --dest-lang fr \
-      --destination-folder do-not-commit \
-      --provider simulate \
-      --translate-key translation_info_key \
-      --translate-message "Translated by @provider from @source using @repo on @date"
+      --provider microsoft \
+      --preprocessors '[{"name": "translate-frontmatter", "args": {"translate": ["title"]}}]' \
+      --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
 
-The arguments to ./scripts/translate-md.sh can have sensible defaults
+This will give you:
 
-    --source (no default)
-    --langkey default is lang
-    --source-lang (no default)
-    --dest-lang (no default)
-    --destination-folder default is same as source
-    --provider default is microsoft
-    --translate-key default is translation
-    --translate-message default is "Translated by @Provider from @source using @repo on @Date"
-    --do-not-translate-frontmatter (no default, by default every frontmatter key is translated)
+    ---
+    title: "Citation : tirée de Hamlet de Shakespeare"
+    layout: quote
+    lang: fr
+    translation:
+      hash: 8bc3cc6d31bdb35f75985ad3d2e697e7
+      message: "Translated by microsoft from en using http://github.com/dcycle/docker-translator on 2025-05-26"
+    ---
+    Il n’y a rien de bon ou de mauvais, mais c’est la pensée qui le fait.
 
-When you run this, it should result in the following file appearing:
-
-    ./do-not-commit/translate-md-fr.sh
-
-example:-
-
-    ./scripts/translate-md.sh \
-      --source example01/test-file.md \
-      --langkey this_is_the_language_key \
-      --source-lang en \
-      --dest-lang fr \
-      --destination-folder do-not-commit \
-      --provider simulate \
-      --translate-key translation_info_key \
-      --translate-message "Translated by @provider from @source using @repo on @date" \
-      --do-not-translate-regex \
-      --remove-span-translate-no
-
-
-    ./scripts/translate-md.sh \
-      --source example01/test-file.md \
-      --langkey this_is_the_language_key \
-      --source-lang en \
-      --dest-lang fr \
-      --destination-folder do-not-commit \
-      --provider simulate \
-      --translate-key translation_info_key \
-      --translate-message "Translated by @provider from @source using @repo on @date" \
-      --do-not-translate-frontmatter '["title", "something", "whatever"]' \
-      --do-not-translate-regex \
-      --remove-span-translate-no
-
-Force if same hash parameter
------
-    During development if you would like to be able to overwrite the translated file if necessary then
-    use --force-if-same-hash parameter in the command.
-
-    ```
-    ./scripts/translate-md.sh --source example01/test-file.md \
-        --langkey this_is_the_language_key \
-        --source-lang en \
-        --dest-lang fr \
-        --destination-folder do-not-commit \
-        --provider simulate \
-        --translate-key translation_info_key \
-        --translate-message "Translated by @provider from @source using @repo on @date" \
-        --do-not-translate-frontmatter '["title", "something", "whatever"]' \
-        --do-not-translate-regex \
-        --remove-span-translate-no \
-        --force-if-same-hash
-    ```
-
+which looks pretty good!
 
 More resources
 -----

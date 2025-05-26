@@ -144,17 +144,40 @@ docker run --rm \
 
 cat ./do-not-commit/file-file01.es.txt
 
-docker run \
+docker run --rm \
   -e DEBUG="1" \
+  -e MS_ENDPOINT="$MS_ENDPOINT" \
+  -e MS_KEY="$MS_KEY" \
+  -e MS_LOC="$MS_LOC" \
   -v "$(pwd)":/data \
   local-translator-api-image \
-  /app/translate_markdown.py \
+  translate_markdown.py \
   --source /data/example01/simple-frontmatter.md \
   --destination /data/do-not-commit/simple-frontmatter.fr.md \
   --source-lang en \
   --dest-lang fr \
-  --do-not-translate-frontmatter '["layout"]' \
-  --provider simulate
+  --provider simulate \
+  --preprocessors '[{"name": "translate-frontmatter", "args": {}}]' \
+  --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]' \
+  && echo "Done"
+
+cat ./do-not-commit/simple-frontmatter.fr.md
+rm ./do-not-commit/simple-frontmatter.fr.md
+
+docker run --rm \
+  -e MS_ENDPOINT="$MS_ENDPOINT" \
+  -e MS_KEY="$MS_KEY" \
+  -e MS_LOC="$MS_LOC" \
+  -v "$(pwd)":/data \
+  local-translator-api-image \
+  translate_markdown.py \
+  --source /data/example01/simple-frontmatter.md \
+  --destination /data/do-not-commit/simple-frontmatter.fr.md \
+  --source-lang en \
+  --dest-lang fr \
+  --provider simulate \
+  --preprocessors '[{"name": "translate-frontmatter", "args": {"translate": ["title"]}}]' \
+  --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
 
 cat ./do-not-commit/simple-frontmatter.fr.md
 

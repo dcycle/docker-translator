@@ -158,7 +158,7 @@ def main():
     )
     parser.add_argument('--do-not-translate-frontmatter-double-quote',
       action='store_true',
-      default=True
+      default=False,
     )
     parser.add_argument('--do-not-translate-frontmatter', type=json.loads, default=[])
     parser.add_argument('--do-not-translate-regex', action='store_true', default=False)
@@ -190,6 +190,16 @@ def main():
 
     preprocessors = json.loads(args.preprocessors)
     postprocessors = json.loads(args.postprocessors)
+
+    # Microsft will remove newlines between spans, so we escape them
+    preprocessors.append({
+        'name': 'escape-newline',
+        'args': {},
+    })
+    postprocessors.append({
+        'name': 'unescape-newline',
+        'args': {},
+    })
 
     if args.do_not_translate_frontmatter_double_quote:
         preprocessors.append({
