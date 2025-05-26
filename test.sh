@@ -43,7 +43,7 @@ rm -rf do-not-commit
   --do-not-translate-frontmatter '["title", "something", "whatever"]' \
   --do-not-translate-regex \
   --remove-span-translate-no \
-  && TRUE
+  && echo "Done"
 
 # create translation again using --force-if-same-hash
 ./scripts/translate-md.sh --source example01/test-file.md \
@@ -59,7 +59,7 @@ rm -rf do-not-commit
   --do-not-translate-regex \
   --remove-span-translate-no \
   --force-if-same-hash \
-  && TRUE
+  && echo "Done"
 
 # throw error hash if same hash present
 ./scripts/translate-md.sh --source example01/test-file.md \
@@ -74,7 +74,7 @@ rm -rf do-not-commit
   --do-not-translate-frontmatter '["title", "something", "whatever"]' \
   --do-not-translate-regex \
   --remove-span-translate-no \
-  && TRUE
+  && echo "Done"
 
 # create translation again using --force-if-same-hash
 ./scripts/translate-md.sh --source example01/test-file.md \
@@ -89,7 +89,7 @@ rm -rf do-not-commit
   --do-not-translate-regex \
   --remove-span-translate-no \
   --force-if-same-hash \
-  && TRUE
+  && echo "Done"
 
 ./scripts/translate-md.sh --source example01/test-file.md \
   --langkey this_is_the_language_key \
@@ -104,7 +104,7 @@ rm -rf do-not-commit
   --do-not-translate-regex \
   --remove-span-translate-no \
   --force-if-same-hash \
-  && TRUE
+  && echo "Done"
 
 echo "[ok] translate-md.sh works with simulator"
 
