@@ -1,0 +1,6 @@
+---
+title: test
+multiple_embedded:
+  multiple_embedded: "this: contains a colon and quotes"
+---
+This is a test

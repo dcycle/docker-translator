@@ -1,31 +1,31 @@
 """
 Processes YAML frontmatter to:
-    1. When exclude_keys is empty: Wrap all keys (without colons) in no-translate spans
-    2. When exclude_keys specified: Only wrap specified keys
-    3. Wrap only quotation marks in values (after colon)
-    4. Fully exclude specified keys (entire line)
+    1. By default, every line in the frontmatter should not be translated.
 """
 
-# pylint: disable=E0401
-import re
 # pylint: disable=E0401
 import utilities
 
 def process(text, args=None):
     """
-    Main processor function that breaks down the YAML frontmatter, processes keys,
-    values, and applies 'no-translate' spans as needed.
+    Main processor.
 
     Args:
-    - text (str): The raw YAML frontmatter text to process.
+    - text (str): The raw data.
     - args (dict, optional): Optional arguments for excluding keys and specifying frontmatter keys.
 
     Returns:
     - str: Processed YAML frontmatter text.
     """
-    # pylint: disable=R0801
     if args is None:
         args = {}
+
+    if 'translate' not in args:
+        args['translate'] = []
+    if 's' not in args:
+        args['s'] = '<span translate="no">__START_NO_TRANSLATE__'
+    if 'e' not in args:
+        args['e'] = '__END_NO_TRANSLATE__</span>'
 
     # Split the text into pre, frontmatter, and post sections
     valid, pre, frontmatter, post = utilities.split_frontmatter(text)
@@ -34,13 +34,13 @@ def process(text, args=None):
         return text
 
     # Process the frontmatter lines
-    processed_lines = process_frontmatter(frontmatter)
+    processed_lines = process_frontmatter(frontmatter, args)
 
     # Rebuild the full text with processed frontmatter
     processed_frontmatter = '\n'.join(processed_lines)
     return f"{pre}---\n{processed_frontmatter}\n---{post}"
 
-def process_frontmatter(frontmatter):
+def process_frontmatter(frontmatter, args):
     """
     Processes the frontmatter lines, applying the necessary transformations.
 
@@ -52,17 +52,17 @@ def process_frontmatter(frontmatter):
     Returns:
     - list: A list of processed frontmatter lines.
     """
-    # pylint: disable=R0801
     lines = frontmatter.strip().split('\n')
     processed_lines = []
 
     for line in lines:
-        processed_line = process_line(line)
+        processed_line = process_line(line, args)
         processed_lines.append(processed_line)
 
     return processed_lines
 
-def process_line(line):
+# pylint: disable=W0613
+def process_line(line, args):
     """
     Processes a single line of frontmatter, applying the 'no-translate' span transformations.
 
@@ -74,37 +74,22 @@ def process_line(line):
     Returns:
     - str: The processed line.
     """
-    # pylint: disable=R0801
-    processed_line = line.rstrip()
+    # pylint: disable=W0612
+    key_part, value_part = line.split(':', 1)
 
     # Handle quoted values (only after colon)
-    if ':' in processed_line:
-        processed_line = wrap_quoted_values(processed_line)
+    if key_part in args['translate']:
+        return args['s'] + key_part + ':' + args['e'] + wrap_quoted_values(value_part, args)
 
-    return processed_line
+    return args['s'] + line + args['e']
 
-def wrap_quoted_values(line):
+def wrap_quoted_values(value_part, args):
     """
     Wraps each double quote (") in the value part of a line in a no-translate span.
     Skips wrapping if the value is already a fully-wrapped no-translate span.
     """
-    # pylint: disable=R0801
     # Split into key and value
-    key_part, value_part = line.split(':', 1)
-    value_part = value_part.strip()
-
-    # If value part is already fully wrapped in a no-translate span, skip it
-    already_wrapped_pattern = (
-        r'^<span translate="no">'
-        r'__START_NO_TRANSLATE__.*?__END_NO_TRANSLATE__'
-        r'</span>$'
-    )
-
-    if re.fullmatch(already_wrapped_pattern, value_part):
-        return f'{key_part}: {value_part}'
 
     # Replace each double quote character " with wrapped version
-    quote_wrapper = '<span translate="no">__START_NO_TRANSLATE__"__END_NO_TRANSLATE__</span>'
-    value_part = value_part.replace('"', quote_wrapper)
-
-    return f'{key_part}: {value_part}'
+    quote_wrapper = args['s'] + '"' + args['e']
+    return value_part.replace('"', quote_wrapper)
