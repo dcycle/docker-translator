@@ -14,6 +14,10 @@ docker pull python:alpine
 docker build -t local-translator-api-image .
 
 docker run --rm local-translator-api-image \
+  processor_md_code_test.py
+docker run --rm local-translator-api-image \
+  processor_simulate_test.py
+docker run --rm local-translator-api-image \
   processor_translate_frontmatter_test.py
 
 ! docker run --rm local-translator-api-image preflight.py
@@ -180,6 +184,23 @@ docker run --rm \
   --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
 
 cat ./do-not-commit/simple-frontmatter.fr.md
+
+docker run --rm \
+  -e MS_ENDPOINT="$MS_ENDPOINT" \
+  -e MS_KEY="$MS_KEY" \
+  -e MS_LOC="$MS_LOC" \
+  -v "$(pwd)":/data \
+  local-translator-api-image \
+  translate_markdown.py \
+  --source /data/example01/code.md \
+  --destination /data/do-not-commit/code.fr.md \
+  --source-lang en \
+  --dest-lang fr \
+  --provider simulate \
+  --preprocessors '[{"name": "translate-frontmatter", "args": {"translate": ["title"]}},{"name": "md-code", "args": {}}]' \
+  --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
+
+cat ./do-not-commit/code.fr.md
 
 echo ""
 echo "[ok] All tests passed!"

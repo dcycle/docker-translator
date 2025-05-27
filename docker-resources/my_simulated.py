@@ -1,5 +1,8 @@
 """Simulation of a translation; does nothing"""
 
+import sys
+sys.setrecursionlimit(3000)
+
 def replace(text, translate_me=True):
     """Replace all e's, i's, o's, and u's with 'a's, unless inside a no-translate span"""
     if not text:
@@ -7,7 +10,8 @@ def replace(text, translate_me=True):
 
     if translate_me:
         if text.startswith('<span translate="no">'):
-            return '<span translate="no">' + replace(text[len('<span translate="no">'):], False)
+            ret = '<span translate="no">' + replace(text[len('<span translate="no">'):], False)
+            return ret
         first = text[0]
         first = first.replace('e', 'a')
         first = first.replace('i', 'a')
@@ -16,10 +20,12 @@ def replace(text, translate_me=True):
         first = first.replace('"', '»')
     else:
         if text.startswith('</span>'):
-            return '</span>' + replace(text[len('</span>'):], True)
+            ret = '</span>' + replace(text[len('</span>'):], True)
+            return ret
         first = text[0]
 
-    return first + replace(text[1:], translate_me)
+    ret = first + replace(text[1:], translate_me)
+    return ret
 
 # pylint: disable=W0613
 def translate(text, from_lg, to):
