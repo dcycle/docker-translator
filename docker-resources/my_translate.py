@@ -1,5 +1,6 @@
 """Adapted from the Microsoft Translator Text API documentation"""
 
+import json
 # pylint: disable=E0401
 import my_simulated
 # pylint: disable=E0401
@@ -8,6 +9,8 @@ import utilities
 import my_microsoft
 # pylint: disable=E0401
 import processor_add_to_start
+# pylint: disable=E0401
+import processor_md_code
 # pylint: disable=E0401
 import processor_do_not_translate_frontmatter
 # pylint: disable=E0401
@@ -105,6 +108,8 @@ def processor(pr):
             return processor_remove_span_translate_no
         case 'remove-span-translate-no-simple':
             return processor_remove_span_translate_no_simple
+        case 'md-code':
+            return processor_md_code
         case 'escape-double-slash':
             return processor_escape_double_slash
         case 'unescape-double-slash':
@@ -115,4 +120,4 @@ def processor(pr):
             return processor_unescape_newline
         case _:
             raise EnvironmentError('processor must be set in my_translate.' +
-            'processor() got ' + pr['name'])
+            'processor() got ' + json.dumps(pr['name']))

@@ -226,7 +226,9 @@ For all these purposes, a different technique can be used to translate markdown 
 This will yield:
 
     ---
-    title: "Quote: from Shakespeare's Hamlet"layout: quotelang: fr
+    title: "Quote: from Shakespeare's Hamlet"
+    layout: quote
+    lang: fr
     translation:
       hash: 8bc3cc6d31bdb35f75985ad3d2e697e7
       message: "Translated by microsoft from en using http://github.com/dcycle/docker-translator on 2025-05-26"
@@ -263,6 +265,43 @@ This will give you:
     Il n’y a rien de bon ou de mauvais, mais c’est la pensée qui le fait.
 
 which looks pretty good!
+
+Translating markdown with computer code
+-----
+
+Computer code can be formatted with four leading spaces, like this:
+
+    ---
+    title: "What is a recurive function"
+    ---
+    A recursive function looks like this:
+
+        // Fibonacci sequence
+        def fib(number)
+            if number < 2
+                number
+            else
+                fib(number - 1) + fib(number - 2)
+            end
+        end
+
+A "fib" can be translated in French as a mensonge, as you can see with this output
+
+    docker run --rm \
+      -e MS_ENDPOINT="$MS_ENDPOINT" \
+      -e MS_KEY="$MS_KEY" \
+      -e MS_LOC="$MS_LOC" \
+      -v "$(pwd)":/data \
+      dcycle/translator:1 \
+      translate_markdown.py \
+      --source /data/example01/code.md \
+      --destination /data/do-not-commit/code.fr.md \
+      --source-lang en \
+      --dest-lang fr \
+      --provider microsoft \
+      --preprocessors '[{"name": "translate-frontmatter", "args": {"translate": ["title"]}}]' \
+      --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
+
 
 More resources
 -----

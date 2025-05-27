@@ -1,0 +1,13 @@
+---
+title: "What is a recurive function"
+---
+A recursive function looks like this:
+
+<span translate="no">__START_NO_TRANSLATE__    //__END_NO_TRANSLATE__</span> Fibonacci sequence
+<span translate="no">__START_NO_TRANSLATE__    def fib(number)__END_NO_TRANSLATE__</span>
+<span translate="no">__START_NO_TRANSLATE__        if number < 2__END_NO_TRANSLATE__</span>
+<span translate="no">__START_NO_TRANSLATE__            number__END_NO_TRANSLATE__</span>
+<span translate="no">__START_NO_TRANSLATE__        else__END_NO_TRANSLATE__</span>
+<span translate="no">__START_NO_TRANSLATE__            fib(number - 1) + fib(number - 2)__END_NO_TRANSLATE__</span>
+<span translate="no">__START_NO_TRANSLATE__        end__END_NO_TRANSLATE__</span>
+<span translate="no">__START_NO_TRANSLATE__    end__END_NO_TRANSLATE__</span>

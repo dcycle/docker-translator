@@ -227,6 +227,11 @@ def main():
             }
         })
 
+    postprocessors.append({
+        'name': 'unescape-double-slash',
+        'args': {}
+    })
+
     # Add 'remove-span-translate-no' if the argument is set
     if args.remove_span_translate_no:
         postprocessors.append({
@@ -247,10 +252,6 @@ def main():
 
     preprocessors.append({
         'name': 'escape-double-slash',
-        'args': {}
-    })
-    postprocessors.append({
-        'name': 'unescape-double-slash',
         'args': {}
     })
 
