@@ -285,7 +285,7 @@ Computer code can be formatted with four leading spaces, like this:
             end
         end
 
-A "fib" can be translated in French as a mensonge, as you can see with this output
+If we want our code (except comment lines starting with //) to remain untranslated, we can add the "md-code" preprocessor, which instructors Microsoft translator to (1) not reformat our code block by removing spaces; and (2) not translate the code itself (except comment lines starting with //):
 
     docker run --rm \
       -e MS_ENDPOINT="$MS_ENDPOINT" \
@@ -299,9 +299,30 @@ A "fib" can be translated in French as a mensonge, as you can see with this outp
       --source-lang en \
       --dest-lang fr \
       --provider microsoft \
-      --preprocessors '[{"name": "translate-frontmatter", "args": {"translate": ["title"]}}]' \
+      --preprocessors '[{"name": "translate-frontmatter", "args": {"translate": ["title"]}},{"name": "md-code", "args": {}}]' \
       --postprocessors '[{"name": "remove-span-translate-no", "args": {}}]'
 
+    cat ./do-not-commit/code.fr.md
+
+This yields the following, which is a nice translated version of our original markdown file:
+
+    ---
+    title: "Qu’est-ce qu’une fonction récurive"
+    lang: fr
+    translation:
+    hash: dac7cb53595b8ea1c23ddd316f775885
+    message: "Translated by microsoft from en using http://github.com/dcycle/docker-translator on 2025-05-27"
+    ---
+    Une fonction récursive ressemble à ceci :
+
+        // suite de Fibonacci
+        def fib(number)
+            if number < 2
+                number
+            else
+                fib(number - 1) + fib(number - 2)
+            end
+        end
 
 More resources
 -----
