@@ -1,3 +1,5 @@
+[![GitHub Actions](https://github.com/dcycle/docker-translator/actions/workflows/config.yml/badge.svg)](../../actions/workflows/main.yml)
+
 Translate text or files with [Microsoft Azure Translation](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/quickstart/rest-api?tabs=csharp).
 
 Usage without Microsoft credentials
